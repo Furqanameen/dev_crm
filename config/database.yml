@@ -1,0 +1,16 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  username: furqan
+  password: furqan
+  host: localhost
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+development:
+  <<: *default
+  database: dev_crm_development
+test:
+  <<: *default
+  database: dev_crm_test
+production:
+  <<: *default
+  database: dev_crm_production
