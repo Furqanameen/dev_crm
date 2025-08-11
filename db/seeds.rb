@@ -2,7 +2,7 @@
 puts "Creating users..."
 
 # Create Super Admin
-super_admin_password = SecureRandom.hex(8)
+super_admin_password = ENV['SUPER_ADMIN_PASSWORD'] || SecureRandom.hex(8)
 super_admin = User.create!(
   email: 'superadmin@devcrm.com',
   password: super_admin_password,
