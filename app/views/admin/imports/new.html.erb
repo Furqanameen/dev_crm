@@ -1,0 +1,117 @@
+<% content_for :page_title, "New Import" %>
+
+<div class="admin-header">
+  <div>
+    <h1 class="admin-title">New CSV Import</h1>
+    <p class="admin-subtitle">Upload and import contact data from CSV files</p>
+  </div>
+  <div class="admin-actions">
+    <%= link_to "Back to Imports", admin_imports_path, class: "btn btn-outline" %>
+  </div>
+</div>
+
+<div class="max-w-2xl">
+  <%= form_with url: admin_imports_path, method: :post, local: true, multipart: true, class: "space-y-6", id: "import_form" do |f| %>
+    <% if @import_batch&.errors&.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@import_batch.errors.count, "error") %> prohibited this import from being saved:</h4>
+        <ul class="mt-2 list-disc list-inside">
+          <% @import_batch.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- File Upload Section -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="text-lg font-semibold">Upload CSV File</h3>
+      </div>
+      <div class="card-body">
+        <div class="file-upload" data-controller="file-upload">
+          <%= file_field :import_batch, :csv_file, 
+              accept: ".csv", 
+              class: "file-upload-input", 
+              data: { 
+                file_upload_target: "input",
+                action: "change->file-upload#handleFileSelect drop->file-upload#handleDrop dragover->file-upload#handleDragOver dragleave->file-upload#handleDragLeave"
+              } %>
+          <label for="import_batch_csv_file" class="file-upload-label" data-file-upload-target="label">
+            <div class="text-center">
+              <div class="icon icon-upload icon-3xl text-gray-400 mx-auto mb-4"></div>
+              <div class="text-lg font-medium text-gray-900 mb-2">
+                <span data-file-upload-target="text">Click to upload or drag and drop</span>
+              </div>
+              <div class="text-sm text-gray-600">
+                CSV files up to 10MB
+              </div>
+            </div>
+          </label>
+        </div>
+        
+        <div class="mt-4 text-sm text-gray-600">
+          <h4 class="font-medium mb-2">Supported CSV format:</h4>
+          <ul class="list-disc list-inside space-y-1">
+            <li>First row should contain column headers</li>
+            <li>Required columns: email OR mobile_number</li>
+            <li>Optional columns: full_name, company_name, tags, notes</li>
+            <li>Use UTF-8 encoding for special characters</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <h3 class="text-sm font-medium text-blue-800 mb-2">CSV Format Requirements</h3>
+      <ul class="text-xs text-blue-700 space-y-1">
+        <li>• Must include either email or mobile_number (or both)</li>
+        <li>• For individuals: full_name is required</li>
+        <li>• For companies: company_name is required</li>
+        <li>• Supported columns: email, mobile_number, full_name, company_name, role, country, city, source, tags</li>
+        <li>• Tags should be comma-separated</li>
+      </ul>
+    </div>
+
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+      <h3 class="text-sm font-medium text-gray-800 mb-2">Example CSV Format</h3>
+      <pre class="text-xs text-gray-600 overflow-x-auto">email,mobile_number,full_name,company_name,role,country,city,source,tags
+john@example.com,+1234567890,John Doe,,Developer,USA,New York,Website,"lead,potential"
+jane@techcorp.com,,Jane Smith,TechCorp Inc,CTO,USA,San Francisco,LinkedIn,"enterprise,tech"</pre>
+    </div>
+
+    <div class="flex justify-end space-x-3">
+      <%= link_to "Cancel", admin_imports_path, class: "btn btn-outline" %>
+      <%= submit_tag "Upload & Continue", class: "btn btn-primary", id: "submit_btn" %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('import_form');
+  const fileInput = document.getElementById('import_batch_csv_file');
+  const submitBtn = document.getElementById('submit_btn');
+  
+  form.addEventListener('submit', function(e) {
+    if (!fileInput.files || fileInput.files.length === 0) {
+      e.preventDefault();
+      alert('Please select a CSV file to upload before submitting.');
+      return false;
+    }
+    
+    const file = fileInput.files[0];
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+      e.preventDefault();
+      alert('Please select a valid CSV file.');
+      return false;
+    }
+    
+    if (file.size > 10 * 1024 * 1024) { // 10MB
+      e.preventDefault();
+      alert('File size must be less than 10MB.');
+      return false;
+    }
+  });
+});
+</script>

@@ -1,0 +1,139 @@
+<% content_for :page_title, "Users" %>
+
+<div class="admin-header">
+  <div>
+    <h1 class="admin-title">Users</h1>
+    <p class="admin-subtitle">Manage user accounts and permissions</p>
+  </div>
+</div>
+
+<!-- Search and Filters -->
+<div class="admin-filters">
+  <%= form_with url: admin_users_path, method: :get, local: true, class: "flex flex-wrap gap-4 items-end" do |f| %>
+    <div class="form-group">
+      <%= f.label :search, "Search users", class: "form-label" %>
+      <%= f.text_field :search, value: params[:search], placeholder: "Search by email...", class: "form-control" %>
+    </div>
+    
+    <div class="form-group">
+      <%= f.label :role, "Role", class: "form-label" %>
+      <%= f.select :role, options_for_select([
+        ['All Roles', ''],
+        ['Member', 'member'],
+        ['Admin', 'admin'],
+        ['Super Admin', 'super_admin']
+      ], params[:role]), {}, { class: "form-control form-select" } %>
+    </div>
+    
+    <div class="form-group">
+      <%= f.submit "Filter", class: "btn btn-primary" %>
+      <%= link_to "Clear", admin_users_path, class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Stats Cards -->
+<div class="admin-stats">
+  <% @role_counts.each do |role, count| %>
+    <div class="stat-card">
+      <div class="stat-header">
+        <h3 class="stat-title"><%= role.humanize.pluralize %></h3>
+        <div class="icon icon-user text-primary-600"></div>
+      </div>
+      <div class="stat-value"><%= count %></div>
+    </div>
+  <% end %>
+</div>
+
+<!-- Users Table -->
+<div class="admin-table-container">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Imports</th>
+        <th>Joined</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <td>
+            <div class="flex items-center">
+              <div class="icon icon-user text-gray-400 mr-2"></div>
+              <div>
+                <div class="font-medium text-gray-900"><%= user.email %></div>
+                <div class="text-sm text-gray-500"><%= user.display_name %></div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge <%= user.admin? ? 'badge-primary' : 'badge-secondary' %>">
+              <%= user.role.humanize %>
+            </span>
+          </td>
+          <td>
+            <% if user.confirmed_at %>
+              <span class="badge badge-success">Confirmed</span>
+            <% else %>
+              <span class="badge badge-warning">Pending</span>
+            <% end %>
+          </td>
+          <td>
+            <span class="text-sm text-gray-600"><%= user.import_batches.count %></span>
+          </td>
+          <td>
+            <span class="text-sm text-gray-600"><%= user.created_at.strftime("%b %d, %Y") %></span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <%= link_to admin_user_path(user), class: "btn btn-sm btn-outline", title: "View" do %>
+                <div class="icon icon-eye"></div>
+              <% end %>
+              <%= link_to edit_admin_user_path(user), class: "btn btn-sm btn-outline", title: "Edit" do %>
+                <div class="icon icon-edit"></div>
+              <% end %>
+              <% unless user == current_user %>
+                <%= link_to admin_user_path(user), method: :delete, 
+                    class: "btn btn-sm btn-danger", 
+                    title: "Delete",
+                    data: { confirm: "Are you sure you want to delete this user?" } do %>
+                  <div class="icon icon-trash"></div>
+                <% end %>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+<% if @total_pages > 1 %>
+  <div class="admin-pagination">
+    <div class="pagination-info">
+      Showing <%= (@page - 1) * @per_page + 1 %>-<%= [@page * @per_page, @total_count].min %> of <%= @total_count %> users
+    </div>
+    <div class="pagination-controls">
+      <% if @page > 1 %>
+        <%= link_to admin_users_path(page: @page - 1, search: params[:search], role: params[:role]), class: "btn btn-sm btn-outline" do %>
+          Previous
+        <% end %>
+      <% end %>
+      
+      <span class="px-3 py-1 text-sm text-gray-600">
+        Page <%= @page %> of <%= @total_pages %>
+      </span>
+      
+      <% if @page < @total_pages %>
+        <%= link_to admin_users_path(page: @page + 1, search: params[:search], role: params[:role]), class: "btn btn-sm btn-outline" do %>
+          Next
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

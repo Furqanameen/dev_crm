@@ -1,0 +1,91 @@
+<% content_for :page_title, "Edit Contact" %>
+
+<div class="admin-header">
+  <div>
+    <h1 class="admin-title">Edit Contact</h1>
+    <p class="admin-subtitle">
+      <%= @contact.full_name.presence || @contact.company_name %>
+    </p>
+  </div>
+  <div class="admin-actions">
+    <%= link_to "View Contact", admin_contact_path(@contact), class: "btn btn-secondary" %>
+    <%= link_to "Back to Contacts", admin_contacts_path, class: "btn btn-outline" %>
+  </div>
+</div>
+
+<div class="max-w-2xl">
+  <%= form_with model: [:admin, @contact], local: true, class: "space-y-6" do |f| %>
+    <% if @contact.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@contact.errors.count, "error") %> prohibited this contact from being saved:</h4>
+        <ul class="mt-2 list-disc list-inside">
+          <% @contact.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="text-lg font-semibold">Contact Information</h3>
+      </div>
+      <div class="card-body space-y-4">
+        <div class="form-group">
+          <%= f.label :account_type, class: "form-label" %>
+          <%= f.select :account_type, options_for_select([
+            ['Individual', 'individual'],
+            ['Company', 'company']
+          ], @contact.account_type), {}, { class: "form-control form-select" } %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :full_name, class: "form-label" %>
+          <%= f.text_field :full_name, class: "form-control", placeholder: "Full name" %>
+          <p class="text-sm text-gray-600 mt-1">Required for individual accounts</p>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :company_name, class: "form-label" %>
+          <%= f.text_field :company_name, class: "form-control", placeholder: "Company name" %>
+          <p class="text-sm text-gray-600 mt-1">Required for company accounts</p>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :email, class: "form-label" %>
+          <%= f.email_field :email, class: "form-control", placeholder: "email@example.com" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :mobile_number, class: "form-label" %>
+          <%= f.text_field :mobile_number, class: "form-control", placeholder: "+1 (555) 123-4567" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :consent_status, class: "form-label" %>
+          <%= f.select :consent_status, options_for_select([
+            ['Unknown', 'unknown'],
+            ['Consented', 'consented'],
+            ['Unsubscribed', 'unsubscribed']
+          ], @contact.consent_status), {}, { class: "form-control form-select" } %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :tags, class: "form-label" %>
+          <%= f.text_field :tags, class: "form-control", placeholder: "tag1, tag2, tag3" %>
+          <p class="text-sm text-gray-600 mt-1">Separate multiple tags with commas</p>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :notes, class: "form-label" %>
+          <%= f.text_area :notes, rows: 4, class: "form-control", placeholder: "Additional notes about this contact..." %>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end space-x-3">
+      <%= link_to "Cancel", admin_contact_path(@contact), class: "btn btn-outline" %>
+      <%= f.submit "Update Contact", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>

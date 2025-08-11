@@ -1,0 +1,187 @@
+<!-- Services Hero -->
+<section class="bg-gray-900 text-white py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <h1 class="text-4xl md:text-5xl font-bold mb-6">Our Professional Services</h1>
+    <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+      We provide comprehensive digital solutions to help your business thrive in today's competitive market.
+    </p>
+  </div>
+</section>
+
+<!-- SEO Services -->
+<section class="py-16 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        SEO & Digital Marketing
+      </h2>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        Boost your online presence and drive organic traffic with our proven SEO strategies.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <% @seo_services.each do |service| %>
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+            <%= render 'shared/icons/search', class: "w-6 h-6 text-green-600" %>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-3"><%= service[:title] %></h3>
+          <p class="text-gray-600 mb-4"><%= service[:description] %></p>
+          <ul class="space-y-2">
+            <% service[:features].each do |feature| %>
+              <li class="flex items-center text-sm text-gray-600">
+                <div class="w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-2">
+                  <div class="w-2 h-2 bg-green-600 rounded-full"></div>
+                </div>
+                <%= feature %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<!-- Software Development Services -->
+<section class="py-16 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        Software Development
+      </h2>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        Custom software solutions built with modern technologies to power your business growth.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <% @software_services.each do |service| %>
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+            <%= render 'shared/icons/building', class: "w-6 h-6 text-primary-600" %>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-3"><%= service[:title] %></h3>
+          <p class="text-gray-600 mb-4"><%= service[:description] %></p>
+          <ul class="space-y-2">
+            <% service[:features].each do |feature| %>
+              <li class="flex items-center text-sm text-gray-600">
+                <div class="w-4 h-4 bg-primary-100 rounded-full flex items-center justify-center mr-2">
+                  <div class="w-2 h-2 bg-primary-600 rounded-full"></div>
+                </div>
+                <%= feature %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<!-- Process Section -->
+<section class="py-16 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        Our Development Process
+      </h2>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        We follow a proven methodology to ensure successful project delivery.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <!-- Step 1 -->
+      <div class="text-center">
+        <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span class="text-2xl font-bold text-primary-600">1</span>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Discovery</h3>
+        <p class="text-gray-600 text-sm">
+          We understand your business needs, goals, and target audience to create the perfect strategy.
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="text-center">
+        <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span class="text-2xl font-bold text-primary-600">2</span>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Planning</h3>
+        <p class="text-gray-600 text-sm">
+          Detailed project planning with timelines, milestones, and technical specifications.
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="text-center">
+        <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span class="text-2xl font-bold text-primary-600">3</span>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Development</h3>
+        <p class="text-gray-600 text-sm">
+          Agile development with regular updates and feedback loops to ensure quality.
+        </p>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="text-center">
+        <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span class="text-2xl font-bold text-primary-600">4</span>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Launch</h3>
+        <p class="text-gray-600 text-sm">
+          Smooth deployment with ongoing support and maintenance to ensure success.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Technologies Section -->
+<section class="py-16 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        Technologies We Master
+      </h2>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        We use cutting-edge technologies to build robust, scalable, and future-proof solutions.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
+      <% technologies = ['Ruby on Rails', 'React', 'Node.js', 'Python', 'PostgreSQL', 'AWS'] %>
+      <% technologies.each do |tech| %>
+        <div class="bg-white p-4 rounded-lg text-center shadow-sm">
+          <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+            <%= render 'shared/icons/building', class: "w-6 h-6 text-gray-600" %>
+          </div>
+          <p class="text-sm font-medium text-gray-900"><%= tech %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="bg-primary-600 text-white py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <h2 class="text-3xl md:text-4xl font-bold mb-4">
+      Ready to Start Your Project?
+    </h2>
+    <p class="text-xl mb-8 text-primary-100 max-w-2xl mx-auto">
+      Let's discuss your requirements and create a solution that drives real results for your business.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <%= link_to contact_path, class: "bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors" do %>
+        Get Free Consultation
+      <% end %>
+      <%= link_to "tel:+15551234567", class: "border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors" do %>
+        Call Us Now
+      <% end %>
+    </div>
+  </div>
+</section>

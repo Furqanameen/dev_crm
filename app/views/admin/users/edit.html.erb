@@ -1,0 +1,94 @@
+<% content_for :page_title, "Edit User" %>
+
+<div class="admin-header">
+  <div>
+    <h1 class="admin-title">Edit User</h1>
+    <p class="admin-subtitle"><%= @user.email %></p>
+  </div>
+  <div class="admin-actions">
+    <%= link_to "View User", admin_user_path(@user), class: "btn btn-secondary" %>
+    <%= link_to "Back to Users", admin_users_path, class: "btn btn-outline" %>
+  </div>
+</div>
+
+<div class="max-w-2xl">
+  <%= form_with model: [:admin, @user], local: true, class: "space-y-6" do |f| %>
+    <% if @user.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h4>
+        <ul class="mt-2 list-disc list-inside">
+          <% @user.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="text-lg font-semibold">User Information</h3>
+      </div>
+      <div class="card-body space-y-4">
+        <div class="form-group">
+          <%= f.label :email, class: "form-label" %>
+          <%= f.email_field :email, class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :role, class: "form-label" %>
+          <%= f.select :role, options_for_select([
+            ['Member', 'member'],
+            ['Admin', 'admin'],
+            ['Super Admin', 'super_admin']
+          ], @user.role), {}, { class: "form-control form-select" } %>
+          <p class="text-sm text-gray-600 mt-1">
+            Admins and Super Admins have access to the admin panel.
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label class="flex items-center">
+            <%= f.check_box :confirmed_at, { checked: @user.confirmed_at.present? }, Time.current, nil %>
+            <span class="ml-2 form-label mb-0">Account Confirmed</span>
+          </label>
+          <p class="text-sm text-gray-600 mt-1">
+            Uncheck this to require the user to confirm their email again.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="text-lg font-semibold">Account Statistics</h3>
+      </div>
+      <div class="card-body">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="form-label">Member Since</label>
+            <p class="text-gray-900"><%= @user.created_at.strftime("%B %d, %Y") %></p>
+          </div>
+          <div>
+            <label class="form-label">Last Sign In</label>
+            <p class="text-gray-900">
+              <%= @user.last_sign_in_at ? @user.last_sign_in_at.strftime("%B %d, %Y") : "Never" %>
+            </p>
+          </div>
+          <div>
+            <label class="form-label">Sign In Count</label>
+            <p class="text-gray-900"><%= @user.sign_in_count || 0 %></p>
+          </div>
+          <div>
+            <label class="form-label">Total Imports</label>
+            <p class="text-gray-900"><%= @user.import_batches.count %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end space-x-3">
+      <%= link_to "Cancel", admin_user_path(@user), class: "btn btn-outline" %>
+      <%= f.submit "Update User", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>

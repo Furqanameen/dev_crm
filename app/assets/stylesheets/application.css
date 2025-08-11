@@ -1,10 +1,25 @@
 /*
  * This is a manifest file that'll be compiled into application.css.
  *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
+ * Import all CSS files in proper order for the DevCRM application
  */
+
+@import url('https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css');
+
+/* Base styles */
+@import 'base';
+
+/* Component styles */
+@import 'components';
+
+/* Layout styles */
+@import 'layouts';
+
+/* Page-specific styles */
+@import 'pages';
+
+/* Admin-specific styles */
+@import 'admin';
+
+/* Utility classes */
+@import 'utilities';

@@ -1,0 +1,140 @@
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="text-center">
+      <h1 class="hero-title">
+        Transform Your Business with
+        <span class="text-primary-200">Professional CRM</span>
+      </h1>
+      <p class="hero-subtitle">
+        Streamline customer relationships, boost sales, and grow your business with our comprehensive CRM solutions and expert software development services.
+      </p>
+      <div class="hero-buttons">
+        <%= link_to services_path, class: "hero-cta-primary" do %>
+          Explore Our Services
+        <% end %>
+        <%= link_to contact_path, class: "hero-cta-secondary" do %>
+          Get Started Today
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number"><%= @services_count %>+</div>
+        <p class="stat-label">Professional Services</p>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number"><%= @clients_count %>+</div>
+        <p class="stat-label">Happy Clients</p>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">99%</div>
+        <p class="stat-label">Customer Satisfaction</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+  <div class="container">
+    <div class="features-header">
+      <h2 class="features-title">
+        Why Choose DevCRM?
+      </h2>
+      <p class="features-subtitle">
+        We combine cutting-edge technology with proven business strategies to deliver results that matter.
+      </p>
+    </div>
+
+    <div class="features-grid">
+      <!-- Feature 1: CRM Solutions -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <div class="icon icon-user text-primary-600"></div>
+        </div>
+        <h3 class="feature-title">Advanced CRM</h3>
+        <p class="feature-description">
+          Manage customer relationships effectively with our intuitive CRM platform featuring contact management, lead tracking, and automated workflows.
+        </p>
+      </div>
+
+      <!-- Feature 2: SEO Services -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <div class="icon icon-search text-primary-600"></div>
+        </div>
+        <h3 class="feature-title">SEO Optimization</h3>
+        <p class="feature-description">
+          Boost your online visibility with our comprehensive SEO strategies, keyword research, and content optimization services.
+        </p>
+      </div>
+
+      <!-- Feature 3: Custom Software -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <div class="icon icon-building text-primary-600"></div>
+        </div>
+        <h3 class="feature-title">Custom Development</h3>
+        <p class="feature-description">
+          Build scalable, robust software solutions tailored to your specific business needs with our expert development team.
+        </p>
+      </div>
+
+      <!-- Feature 4: Analytics -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <div class="icon icon-chart text-primary-600"></div>
+        </div>
+        <h3 class="feature-title">Advanced Analytics</h3>
+        <p class="feature-description">
+          Make data-driven decisions with comprehensive analytics and reporting tools that provide deep insights into your business.
+        </p>
+      </div>
+
+      <!-- Feature 5: Integration -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <div class="icon icon-upload text-primary-600"></div>
+        </div>
+        <h3 class="feature-title">Easy Integration</h3>
+        <p class="feature-description">
+          Seamlessly integrate with your existing tools and workflows. Import data, sync contacts, and automate processes effortlessly.
+        </p>
+      </div>
+
+      <!-- Feature 6: Support -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <div class="icon icon-phone text-primary-600"></div>
+        </div>
+        <h3 class="feature-title">24/7 Support</h3>
+        <p class="feature-description">
+          Get expert support whenever you need it. Our dedicated team is available around the clock to help you succeed.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container text-center">
+    <h2 class="cta-title">
+      Ready to Transform Your Business?
+    </h2>
+    <p class="cta-description">
+      Join hundreds of businesses that have already transformed their operations with our professional CRM and development services.
+    </p>
+    <%= link_to contact_path, class: "cta-button inline-flex items-center" do %>
+      Get Started Now
+      <div class="icon icon-envelope ml-2"></div>
+    <% end %>
+  </div>
+</section>

@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title><%= content_for(:title) || "Dev Crm" %></title>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
+    <title>DevCRM - Customer Relationship Management</title>
+    <meta name="description" content="Professional CRM and software development services">
+    
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
+    
     <%= yield :head %>
 
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
@@ -22,7 +23,150 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="bg-gray-50 min-h-screen">
+    <% unless user_signed_in? && current_user.admin? %>
+      <!-- Public Navigation -->
+      <nav class="navbar" data-controller="mobile-menu">
+        <div class="container">
+          <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+              <%= link_to root_path, class: "navbar-brand" do %>
+                <div class="icon icon-building icon-2xl text-primary-600 mr-2"></div>
+                <span class="text-xl font-bold text-gray-900">DevCRM</span>
+              <% end %>
+            </div>
+            
+            <div class="navbar-nav hidden md:flex">
+              <%= link_to "Home", root_path, class: "nav-link #{'active' if current_page?(root_path)}" %>
+              <%= link_to "Services", services_path, class: "nav-link #{'active' if current_page?(services_path)}" %>
+              <%= link_to "Contact", contact_path, class: "nav-link #{'active' if current_page?(contact_path)}" %>
+              
+              <% if user_signed_in? %>
+                <% if current_user.admin? %>
+                  <%= link_to "Dashboard", admin_root_path, class: "nav-link" %>
+                <% else %>
+                  <%= link_to "Dashboard", dashboard_path, class: "nav-link" %>
+                <% end %>
+                <div class="relative" data-controller="dropdown">
+                  <button class="nav-link flex items-center" data-dropdown-target="button" data-action="click->dropdown#toggle">
+                    <div class="icon icon-user mr-1"></div>
+                    <%= current_user.email.split('@').first.capitalize %>
+                    <div class="icon icon-chevron-down ml-1"></div>
+                  </button>
+                  <div class="dropdown-menu" data-dropdown-target="menu">
+                    <%= link_to "Profile", edit_user_registration_path, class: "dropdown-item" %>
+                    <hr class="dropdown-divider">
+                    <%= link_to "Sign Out", destroy_user_session_path, data: { method: "delete", confirm: "Are you sure?" }, class: "dropdown-item text-red-600" %>
+                  </div>
+                </div>
+              <% else %>
+                <%= link_to "Sign In", new_user_session_path, class: "nav-link" %>
+                <%= link_to "Sign Up", new_user_registration_path, class: "btn btn-primary ml-4" %>
+              <% end %>
+            </div>
+            
+            <button class="mobile-menu-button md:hidden" data-mobile-menu-target="button" data-action="click->mobile-menu#toggle">
+              <div class="icon icon-menu"></div>
+            </button>
+          </div>
+          
+          <!-- Mobile Menu -->
+          <div class="mobile-menu" data-mobile-menu-target="menu">
+            <%= link_to "Home", root_path, class: "nav-link #{'active' if current_page?(root_path)}", data: { action: "click->mobile-menu#close" } %>
+            <%= link_to "Services", services_path, class: "nav-link #{'active' if current_page?(services_path)}", data: { action: "click->mobile-menu#close" } %>
+            <%= link_to "Contact", contact_path, class: "nav-link #{'active' if current_page?(contact_path)}", data: { action: "click->mobile-menu#close" } %>
+            
+            <% if user_signed_in? %>
+              <div class="border-t border-gray-200 my-2"></div>
+              <div class="px-4 py-2">
+                <p class="text-sm text-gray-600">Signed in as</p>
+                <p class="text-sm font-medium text-gray-900"><%= current_user.email %></p>
+              </div>
+              <% if current_user.admin? %>
+                <%= link_to "Dashboard", admin_root_path, class: "nav-link", data: { action: "click->mobile-menu#close" } %>
+              <% else %>
+                <%= link_to "Dashboard", dashboard_path, class: "nav-link", data: { action: "click->mobile-menu#close" } %>
+              <% end %>
+              <%= link_to "Profile", edit_user_registration_path, class: "nav-link", data: { action: "click->mobile-menu#close" } %>
+              <%= link_to "Sign Out", destroy_user_session_path, data: { method: "delete", confirm: "Are you sure?", action: "click->mobile-menu#close" }, class: "nav-link text-red-600" %>
+            <% else %>
+              <div class="border-t border-gray-200 my-2"></div>
+              <%= link_to "Sign In", new_user_session_path, class: "nav-link", data: { action: "click->mobile-menu#close" } %>
+              <%= link_to "Sign Up", new_user_registration_path, class: "nav-link", data: { action: "click->mobile-menu#close" } %>
+            <% end %>
+          </div>
+        </div>
+      </nav>
+    <% end %>
+
+    <!-- Flash Messages -->
+    <% if notice %>
+      <div class="alert alert-success">
+        <div class="flex items-center">
+          <div class="icon icon-check text-green-600 mr-3"></div>
+          <p class="text-sm text-green-700"><%= notice %></p>
+        </div>
+      </div>
+    <% end %>
+
+    <% if alert %>
+      <div class="alert alert-danger">
+        <div class="flex items-center">
+          <div class="icon icon-x text-red-600 mr-3"></div>
+          <p class="text-sm text-red-700"><%= alert %></p>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Main Content -->
+    <main class="<%= user_signed_in? && current_user.admin? ? '' : 'flex-1' %>">
+      <%= yield %>
+    </main>
+
+    <% unless user_signed_in? && current_user.admin? %>
+      <!-- Public Footer -->
+      <footer class="footer">
+        <div class="footer-content">
+          <div class="footer-grid">
+            <div class="footer-section">
+              <div class="flex items-center mb-4">
+                <div class="icon icon-building text-primary-400 mr-2"></div>
+                <span class="text-lg font-bold">DevCRM</span>
+              </div>
+              <p class="text-gray-400 text-sm">
+                Professional CRM solutions and software development services to help your business grow.
+              </p>
+            </div>
+            
+            <div class="footer-section">
+              <h3>Services</h3>
+              <ul>
+                <li><%= link_to "SEO Optimization", services_path, class: "footer-link" %></li>
+                <li><%= link_to "Software Development", services_path, class: "footer-link" %></li>
+                <li><%= link_to "CRM Solutions", services_path, class: "footer-link" %></li>
+              </ul>
+            </div>
+            
+            <div class="footer-section">
+              <h3>Contact</h3>
+              <ul>
+                <li class="flex items-center mb-2">
+                  <div class="icon icon-envelope text-gray-400 mr-2"></div>
+                  <span class="text-gray-400 text-sm">info@devcrm.com</span>
+                </li>
+                <li class="flex items-center">
+                  <div class="icon icon-phone text-gray-400 mr-2"></div>
+                  <span class="text-gray-400 text-sm">+1 (555) 123-4567</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="footer-bottom">
+            <p>© <%= Date.current.year %> DevCRM. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    <% end %>
   </body>
 </html>
