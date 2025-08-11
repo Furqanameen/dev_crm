@@ -1,0 +1,114 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Preview Import Data</h2>
+        <%= link_to "Back to Mapping", mapping_admin_import_path(@import_batch), class: "btn btn-secondary" %>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-file-csv me-2"></i>
+            <%= @import_batch.original_filename %>
+          </h5>
+          <small class="text-muted">
+            Preview of first <%= @preview_data.length %> rows
+          </small>
+        </div>
+        
+        <div class="card-body">
+          <% if @validation_results.any? { |result| result[:errors].any? } %>
+            <div class="alert alert-danger mb-4">
+              <h6><i class="fas fa-exclamation-triangle me-2"></i>Validation Errors Found</h6>
+              <p class="mb-0">Please review the errors below before proceeding with the import.</p>
+            </div>
+          <% elsif @validation_results.any? { |result| result[:warnings].any? } %>
+            <div class="alert alert-warning mb-4">
+              <h6><i class="fas fa-exclamation-circle me-2"></i>Warnings Found</h6>
+              <p class="mb-0">Please review the warnings below. You can still proceed with the import.</p>
+            </div>
+          <% else %>
+            <div class="alert alert-success mb-4">
+              <h6><i class="fas fa-check-circle me-2"></i>Validation Passed</h6>
+              <p class="mb-0">All data looks good! You can proceed with the import.</p>
+            </div>
+          <% end %>
+
+          <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 60px;">Row</th>
+                  <% if @preview_data.first %>
+                    <% @preview_data.first.keys.each do |field| %>
+                      <th><%= field.humanize %></th>
+                    <% end %>
+                  <% end %>
+                  <th style="width: 80px;">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @preview_data.each_with_index do |row_data, index| %>
+                  <% validation_result = @validation_results[index] %>
+                  <tr class="<%= 'table-danger' if validation_result[:errors].any? %>
+                           <%= 'table-warning' if validation_result[:warnings].any? && validation_result[:errors].empty? %>">
+                    <td><%= index + 1 %></td>
+                    <% row_data.each do |field, value| %>
+                      <td>
+                        <%= truncate(value.to_s, length: 30) %>
+                      </td>
+                    <% end %>
+                    <td>
+                      <% if validation_result[:errors].any? %>
+                        <span class="badge bg-danger">Error</span>
+                      <% elsif validation_result[:warnings].any? %>
+                        <span class="badge bg-warning">Warning</span>
+                      <% else %>
+                        <span class="badge bg-success">OK</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                  <% if validation_result[:errors].any? || validation_result[:warnings].any? %>
+                    <tr class="<%= 'table-danger' if validation_result[:errors].any? %>
+                             <%= 'table-warning' if validation_result[:warnings].any? && validation_result[:errors].empty? %>">
+                      <td></td>
+                      <td colspan="<%= row_data.keys.length + 1 %>">
+                        <small>
+                          <% validation_result[:errors].each do |error| %>
+                            <span class="text-danger"><i class="fas fa-times me-1"></i><%= error %></span><br>
+                          <% end %>
+                          <% validation_result[:warnings].each do |warning| %>
+                            <span class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i><%= warning %></span><br>
+                          <% end %>
+                        </small>
+                      </td>
+                    </tr>
+                  <% end %>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="d-flex justify-content-between mt-4">
+            <%= link_to "Back to Mapping", mapping_admin_import_path(@import_batch), class: "btn btn-secondary" %>
+            <div>
+              <% if @validation_results.any? { |result| result[:errors].any? } %>
+                <span class="text-danger me-3">
+                  <i class="fas fa-exclamation-triangle me-1"></i>
+                  Please fix errors before importing
+                </span>
+                <button class="btn btn-primary" disabled>Start Import</button>
+              <% else %>
+                <%= form_with url: perform_admin_import_path(@import_batch), method: :post, local: true, class: "d-inline" do |form| %>
+                  <%= submit_tag "Start Import", class: "btn btn-success", 
+                      confirm: "Are you sure you want to start the import? This will process #{@import_batch.total_rows} rows." %>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

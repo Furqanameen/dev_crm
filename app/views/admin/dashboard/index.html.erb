@@ -1,0 +1,161 @@
+<div class="mb-8">
+  <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+  <p class="text-gray-600 mt-2">Overview of your CRM activity and performance metrics.</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="p-2 bg-primary-100 rounded-lg">
+        <%= render 'shared/icons/user', class: "w-6 h-6 text-primary-600" %>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-600">Total Contacts</p>
+        <p class="text-2xl font-bold text-gray-900"><%= @stats[:total_contacts] %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="p-2 bg-green-100 rounded-lg">
+        <%= render 'shared/icons/chart', class: "w-6 h-6 text-green-600" %>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-600">This Month</p>
+        <p class="text-2xl font-bold text-gray-900"><%= @stats[:contacts_this_month] %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="p-2 bg-blue-100 rounded-lg">
+        <%= render 'shared/icons/upload', class: "w-6 h-6 text-blue-600" %>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-600">Total Imports</p>
+        <p class="text-2xl font-bold text-gray-900"><%= @stats[:total_imports] %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="p-2 bg-yellow-100 rounded-lg">
+        <%= render 'shared/icons/upload', class: "w-6 h-6 text-yellow-600" %>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-600">Pending Imports</p>
+        <p class="text-2xl font-bold text-gray-900"><%= @stats[:pending_imports] %></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  <!-- Recent Imports -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="p-6 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900">Recent Imports</h2>
+    </div>
+    <div class="p-6">
+      <% if @stats[:recent_imports].any? %>
+        <div class="space-y-4">
+          <% @stats[:recent_imports].each do |import| %>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-900"><%= import.original_filename %></p>
+                <p class="text-xs text-gray-500"><%= time_ago_in_words(import.created_at) %> ago</p>
+              </div>
+              <div class="text-right">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= import.status == 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>">
+                  <%= import.status.humanize %>
+                </span>
+                <p class="text-xs text-gray-500 mt-1"><%= import.imported_count %> imported</p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        <div class="mt-4">
+          <%= link_to "View All Imports", admin_imports_path, class: "text-sm text-primary-600 hover:text-primary-700 font-medium" %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-sm">No imports yet. <%= link_to "Start your first import", new_admin_import_path, class: "text-primary-600 hover:text-primary-700" %>.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Recent Contacts -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="p-6 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900">Recent Contacts</h2>
+    </div>
+    <div class="p-6">
+      <% if @recent_contacts.any? %>
+        <div class="space-y-4">
+          <% @recent_contacts.each do |contact| %>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                  <%= render 'shared/icons/user', class: "w-4 h-4 text-gray-600" %>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm font-medium text-gray-900"><%= contact.display_name %></p>
+                  <p class="text-xs text-gray-500"><%= contact.email || contact.mobile_number %></p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= contact.account_type == 'company' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' %>">
+                  <%= contact.account_type.humanize %>
+                </span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        <div class="mt-4">
+          <%= link_to "View All Contacts", admin_contacts_path, class: "text-sm text-primary-600 hover:text-primary-700 font-medium" %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-sm">No contacts yet. <%= link_to "Add your first contact", new_admin_contact_path, class: "text-primary-600 hover:text-primary-700" %>.</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="mt-8">
+  <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <%= link_to new_admin_import_path, class: "bg-primary-600 text-white p-4 rounded-lg hover:bg-primary-700 transition-colors" do %>
+      <div class="flex items-center">
+        <%= render 'shared/icons/upload', class: "w-6 h-6 mr-3" %>
+        <div>
+          <p class="font-medium">Import Contacts</p>
+          <p class="text-sm text-primary-100">Upload CSV file</p>
+        </div>
+      </div>
+    <% end %>
+
+    <%= link_to new_admin_contact_path, class: "bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors" do %>
+      <div class="flex items-center">
+        <%= render 'shared/icons/user', class: "w-6 h-6 mr-3" %>
+        <div>
+          <p class="font-medium">Add Contact</p>
+          <p class="text-sm text-green-100">Create manually</p>
+        </div>
+      </div>
+    <% end %>
+
+    <%= link_to admin_contacts_path, class: "bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors" do %>
+      <div class="flex items-center">
+        <%= render 'shared/icons/search', class: "w-6 h-6 mr-3" %>
+        <div>
+          <p class="font-medium">Browse Contacts</p>
+          <p class="text-sm text-blue-100">Search & filter</p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

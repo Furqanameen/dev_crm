@@ -1,0 +1,218 @@
+<!-- Contact Hero -->
+<section class="bg-gray-900 text-white py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <h1 class="text-4xl md:text-5xl font-bold mb-6">Get In Touch</h1>
+    <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+      Ready to transform your business? Let's discuss your project and explore how we can help you achieve your goals.
+    </p>
+  </div>
+</section>
+
+<!-- Contact Form & Info -->
+<section class="py-16 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <!-- Contact Form -->
+      <div class="bg-white p-8 rounded-lg shadow-sm">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Send us a message</h2>
+        
+        <%= form_with url: contact_path, local: true, class: "space-y-6" do |form| %>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <%= form.label :first_name, class: "block text-sm font-medium text-gray-700 mb-2" do %>
+                <%= render 'shared/icons/user', class: "w-4 h-4 inline mr-1" %>
+                First Name
+              <% end %>
+              <%= form.text_field :first_name, required: true, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" %>
+            </div>
+            
+            <div>
+              <%= form.label :last_name, class: "block text-sm font-medium text-gray-700 mb-2" do %>
+                <%= render 'shared/icons/user', class: "w-4 h-4 inline mr-1" %>
+                Last Name
+              <% end %>
+              <%= form.text_field :last_name, required: true, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" %>
+            </div>
+          </div>
+          
+          <div>
+            <%= form.label :email, class: "block text-sm font-medium text-gray-700 mb-2" do %>
+              <%= render 'shared/icons/envelope', class: "w-4 h-4 inline mr-1" %>
+              Email Address
+            <% end %>
+            <%= form.email_field :email, required: true, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" %>
+          </div>
+          
+          <div>
+            <%= form.label :phone, class: "block text-sm font-medium text-gray-700 mb-2" do %>
+              <%= render 'shared/icons/phone', class: "w-4 h-4 inline mr-1" %>
+              Phone Number
+            <% end %>
+            <%= form.telephone_field :phone, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" %>
+          </div>
+          
+          <div>
+            <%= form.label :company, class: "block text-sm font-medium text-gray-700 mb-2" do %>
+              <%= render 'shared/icons/building', class: "w-4 h-4 inline mr-1" %>
+              Company (Optional)
+            <% end %>
+            <%= form.text_field :company, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" %>
+          </div>
+          
+          <div>
+            <%= form.label :service_interest, "Service Interest", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.select :service_interest, 
+                options_for_select([
+                  ['CRM Solutions', 'crm'],
+                  ['SEO Services', 'seo'],
+                  ['Custom Software Development', 'software'],
+                  ['E-commerce Development', 'ecommerce'],
+                  ['Other', 'other']
+                ]), 
+                { prompt: 'Select a service...' },
+                { class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" } %>
+          </div>
+          
+          <div>
+            <%= form.label :message, class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.text_area :message, rows: 4, required: true, placeholder: "Tell us about your project requirements...", class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" %>
+          </div>
+          
+          <div>
+            <%= form.submit "Send Message", class: "w-full bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors" %>
+          </div>
+        <% end %>
+      </div>
+      
+      <!-- Contact Information -->
+      <div class="space-y-8">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Contact Information</h2>
+          <div class="space-y-6">
+            <div class="flex items-start space-x-4">
+              <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                <%= render 'shared/icons/envelope', class: "w-6 h-6 text-primary-600" %>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">Email</h3>
+                <p class="text-gray-600"><%= @contact_info[:email] %></p>
+                <p class="text-sm text-gray-500">We'll respond within 24 hours</p>
+              </div>
+            </div>
+            
+            <div class="flex items-start space-x-4">
+              <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                <%= render 'shared/icons/phone', class: "w-6 h-6 text-primary-600" %>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">Phone</h3>
+                <p class="text-gray-600"><%= @contact_info[:phone] %></p>
+                <p class="text-sm text-gray-500">Mon-Fri 9AM-6PM EST</p>
+              </div>
+            </div>
+            
+            <div class="flex items-start space-x-4">
+              <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                <%= render 'shared/icons/building', class: "w-6 h-6 text-primary-600" %>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">Office</h3>
+                <p class="text-gray-600"><%= @contact_info[:address] %></p>
+                <p class="text-sm text-gray-500">By appointment only</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Why Choose Us -->
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4">Why Choose DevCRM?</h3>
+          <ul class="space-y-3">
+            <li class="flex items-center space-x-3">
+              <div class="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                <div class="w-2 h-2 bg-green-600 rounded-full"></div>
+              </div>
+              <span class="text-gray-700">5+ years of experience</span>
+            </li>
+            <li class="flex items-center space-x-3">
+              <div class="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                <div class="w-2 h-2 bg-green-600 rounded-full"></div>
+              </div>
+              <span class="text-gray-700">100+ successful projects</span>
+            </li>
+            <li class="flex items-center space-x-3">
+              <div class="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                <div class="w-2 h-2 bg-green-600 rounded-full"></div>
+              </div>
+              <span class="text-gray-700">24/7 support & maintenance</span>
+            </li>
+            <li class="flex items-center space-x-3">
+              <div class="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                <div class="w-2 h-2 bg-green-600 rounded-full"></div>
+              </div>
+              <span class="text-gray-700">Custom solutions for every business</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- Quick Links -->
+        <div class="bg-primary-50 p-6 rounded-lg">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h3>
+          <div class="space-y-3">
+            <%= link_to services_path, class: "block w-full text-center bg-primary-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors" do %>
+              View Our Services
+            <% end %>
+            <%= link_to root_path, class: "block w-full text-center border border-primary-600 text-primary-600 px-4 py-2 rounded-lg font-medium hover:bg-primary-50 transition-colors" do %>
+              Learn More About Us
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-16 bg-white">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+      <p class="text-gray-600">Common questions about our services and process</p>
+    </div>
+    
+    <div class="space-y-6">
+      <% faqs = [
+        {
+          question: "How long does a typical project take?",
+          answer: "Project timelines vary depending on complexity, but most CRM implementations take 2-4 weeks, while custom software projects range from 8-16 weeks."
+        },
+        {
+          question: "Do you provide ongoing support?",
+          answer: "Yes, we offer comprehensive support packages including maintenance, updates, and 24/7 technical assistance to ensure your systems run smoothly."
+        },
+        {
+          question: "Can you integrate with our existing systems?",
+          answer: "Absolutely! We specialize in creating seamless integrations with popular business tools, databases, and third-party services."
+        },
+        {
+          question: "What's included in your SEO services?",
+          answer: "Our SEO services include keyword research, on-page optimization, content strategy, link building, technical SEO, and monthly performance reports."
+        }
+      ] %>
+      
+      <% faqs.each_with_index do |faq, index| %>
+        <div class="border border-gray-200 rounded-lg">
+          <button class="w-full px-6 py-4 text-left focus:outline-none focus:ring-2 focus:ring-primary-500" data-faq-toggle="<%= index %>">
+            <div class="flex justify-between items-center">
+              <h3 class="text-lg font-semibold text-gray-900"><%= faq[:question] %></h3>
+              <span class="text-gray-400">+</span>
+            </div>
+          </button>
+          <div class="hidden px-6 pb-4" data-faq-content="<%= index %>">
+            <p class="text-gray-600"><%= faq[:answer] %></p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>

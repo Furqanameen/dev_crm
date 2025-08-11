@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Admin - DevCRM</title>
+    
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-gray-100">
+    <!-- Admin Navigation -->
+    <nav class="navbar">
+      <div class="container">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center">
+            <%= link_to admin_root_path, class: "navbar-brand" do %>
+              <div class="icon icon-building icon-2xl text-primary-600 mr-2"></div>
+              <span class="text-xl font-bold text-gray-900">DevCRM Admin</span>
+            <% end %>
+          </div>
+          
+          <div class="flex items-center gap-4">
+            <!-- User Menu -->
+            <div class="flex items-center gap-3">
+              <span class="text-sm text-gray-700">
+                Welcome, <%= current_user.display_name %>
+                <span class="badge badge-primary ml-1">
+                  <%= current_user.role.humanize %>
+                </span>
+              </span>
+              <%= link_to root_path, class: "nav-link", target: "_blank" do %>
+                View Site
+              <% end %>
+              <%= link_to "Sign Out", destroy_user_session_path, data: { method: "delete", confirm: "Are you sure?" }, class: "nav-link" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="flex">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <nav class="sidebar-nav">
+          <ul>
+            <li>
+              <%= link_to admin_root_path, class: "sidebar-link #{'active' if current_page?(admin_root_path)}" do %>
+                <div class="icon icon-chart"></div>
+                Dashboard
+              <% end %>
+            </li>
+            
+            <li>
+              <%= link_to admin_contacts_path, class: "sidebar-link #{'active' if current_page?(admin_contacts_path)}" do %>
+                <div class="icon icon-user"></div>
+                Contacts
+              <% end %>
+            </li>
+            
+            <li>
+              <%= link_to admin_imports_path, class: "sidebar-link #{'active' if controller_name == 'imports'}" do %>
+                <div class="icon icon-upload"></div>
+                Imports
+              <% end %>
+            </li>
+            
+            <% if current_user.super_admin? %>
+              <li>
+                <%= link_to admin_users_path, class: "sidebar-link #{'active' if controller_name == 'users'}" do %>
+                  <div class="icon icon-user"></div>
+                  Users
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-with-sidebar flex-1 overflow-hidden">
+        <!-- Flash Messages -->
+        <% if notice %>
+          <div class="alert alert-success m-4">
+            <div class="flex items-center">
+              <div class="icon icon-check text-green-600 mr-3"></div>
+              <p class="text-sm text-green-700"><%= notice %></p>
+            </div>
+          </div>
+        <% end %>
+
+        <% if alert %>
+          <div class="alert alert-danger m-4">
+            <div class="flex items-center">
+              <div class="icon icon-x text-red-600 mr-3"></div>
+              <p class="text-sm text-red-700"><%= alert %></p>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Page Content -->
+        <main class="p-6">
+          <%= yield %>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>
