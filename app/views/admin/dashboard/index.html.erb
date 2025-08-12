@@ -19,6 +19,18 @@
 
   <div class="bg-white rounded-lg shadow p-6">
     <div class="flex items-center">
+      <div class="p-2 bg-purple-100 rounded-lg">
+        <div class="icon icon-list w-6 h-6 text-purple-600"></div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-600">Contact Lists</p>
+        <p class="text-2xl font-bold text-gray-900"><%= @stats[:total_lists] %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
       <div class="p-2 bg-green-100 rounded-lg">
         <%= render 'shared/icons/chart', class: "w-6 h-6 text-green-600" %>
       </div>
@@ -40,21 +52,14 @@
       </div>
     </div>
   </div>
-
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="flex items-center">
-      <div class="p-2 bg-yellow-100 rounded-lg">
-        <%= render 'shared/icons/upload', class: "w-6 h-6 text-yellow-600" %>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-600">Pending Imports</p>
+</div>
         <p class="text-2xl font-bold text-gray-900"><%= @stats[:pending_imports] %></p>
       </div>
     </div>
   </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
   <!-- Recent Imports -->
   <div class="bg-white rounded-lg shadow">
     <div class="p-6 border-b border-gray-200">
@@ -83,6 +88,42 @@
         </div>
       <% else %>
         <p class="text-gray-500 text-sm">No imports yet. <%= link_to "Start your first import", new_admin_import_path, class: "text-primary-600 hover:text-primary-700" %>.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Recent Lists -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="p-6 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900">Recent Contact Lists</h2>
+    </div>
+    <div class="p-6">
+      <% if @recent_lists.any? %>
+        <div class="space-y-4">
+          <% @recent_lists.each do |list| %>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                  <div class="icon icon-list w-4 h-4 text-purple-600"></div>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm font-medium text-gray-900"><%= list.name %></p>
+                  <p class="text-xs text-gray-500"><%= pluralize(list.contacts_count, 'contact') %></p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= list.is_active? ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
+                  <%= list.is_active? ? 'Active' : 'Inactive' %>
+                </span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        <div class="mt-4">
+          <%= link_to "View All Lists", admin_lists_path, class: "text-sm text-primary-600 hover:text-primary-700 font-medium" %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-sm">No lists yet. <%= link_to "Create your first list", new_admin_list_path, class: "text-primary-600 hover:text-primary-700" %>.</p>
       <% end %>
     </div>
   </div>
@@ -127,7 +168,7 @@
 <!-- Quick Actions -->
 <div class="mt-8">
   <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
     <%= link_to new_admin_import_path, class: "bg-primary-600 text-white p-4 rounded-lg hover:bg-primary-700 transition-colors" do %>
       <div class="flex items-center">
         <%= render 'shared/icons/upload', class: "w-6 h-6 mr-3" %>
@@ -144,6 +185,16 @@
         <div>
           <p class="font-medium">Add Contact</p>
           <p class="text-sm text-green-100">Create manually</p>
+        </div>
+      </div>
+    <% end %>
+
+    <%= link_to new_admin_list_path, class: "bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors" do %>
+      <div class="flex items-center">
+        <div class="icon icon-list w-6 h-6 mr-3 text-white"></div>
+        <div>
+          <p class="font-medium">Create List</p>
+          <p class="text-sm text-purple-100">Organize contacts</p>
         </div>
       </div>
     <% end %>

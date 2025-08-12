@@ -1,0 +1,21 @@
+email,mobile_number,full_name,company_name,tags,notes
+alice.smith@acme.co.uk,+447900100001,Alice Smith,Acme Innovations Ltd,"lead,marketing",Met at SaaS Expo.
+ben.patel@orbital.io,+447900100002,Ben Patel,Orbital Systems,"apps,priority",Interested in mobile app.
+,+447900100003,Carla Gomez,,"lead,security",No email; WhatsApp OK.
+daniel.cho@riskguard.com,,Daniel Cho,RiskGuard Security,security,Wants pentest quote.
+emily.wang@northstar.co,+447900100005,Emily Wang,Northstar Co.,"apps,web",Rails preferred.
+francois.dupont@atelier.fr,+33612345678,François Dupont,Atelier Numérique,"marketing,eu",French site revamp.
+,+447900100007,George O'Neill,,lead,Referral.
+helen.yu@pixelcraft.io,+447900100008,Helen Yu,Pixelcraft,"design,apps",Design + build.
+ivan.petrov@volta.tech,,Ivan Petrov,Volta Tech,"ai,apps",AI agent PoC.
+jasmine.ali@mediapulse.co,+447900100010,Jasmine Ali,MediaPulse,marketing,Needs SEO.
+kevin.nguyen@cloudbridge.io,,Kevin Nguyen,CloudBridge,"web,infra",Cloud migration inquiry.
+,+447900100012,Laura Müller,,"eu,apps",Uses umlauts; UTF-8 test.
+martins.ozolins@baltic.agency,+37120000001,Mārtiņš Ozoliņš,Baltic Agency,"eu,marketing",Latvia market lead.
+nora.khan@finlytics.ai,+447900100014,Nora Khan,Finlytics AI,"ai,security",SOC 2 readiness chat.
+omar.rashid@helixlabs.io,,Omar Rashid,Helix Labs,apps,API integration project.
+priyanka.mehta@londonhealth.org,+447900100016,Priyanka Mehta,London Health,"web,priority",NHS partner site.
+qi.chen@neonbyte.cn,+8613800000000,Qi Chen,NeonByte,"apps,global",China localization.
+,+447900100018,Rafael Núñez,,"lead,marketing",Spanish speaker.
+sofia.rossi@aurora.it,+393491234567,Sofia Rossi,Aurora,"eu,web",Italian market site.
+tom.barker@greenfields.uk,,Tom Barker,Greenfields Ltd,security,WAF review.

@@ -63,6 +63,13 @@
             </li>
             
             <li>
+              <%= link_to admin_lists_path, class: "sidebar-link #{'active' if controller_name == 'lists'}" do %>
+                <div class="icon icon-list"></div>
+                Contact Lists
+              <% end %>
+            </li>
+            
+            <li>
               <%= link_to admin_imports_path, class: "sidebar-link #{'active' if controller_name == 'imports'}" do %>
                 <div class="icon icon-upload"></div>
                 Imports

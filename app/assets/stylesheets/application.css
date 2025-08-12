@@ -21,5 +21,8 @@
 /* Admin-specific styles */
 @import 'admin';
 
+/* Contact lists styles */
+@import 'contact_lists';
+
 /* Utility classes */
 @import 'utilities';

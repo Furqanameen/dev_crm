@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_11_023801) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_11_231433) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -69,6 +69,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_11_023801) do
     t.index ["state"], name: "index_campaign_recipients_on_state"
   end
 
+  create_table "contact_list_memberships", force: :cascade do |t|
+    t.bigint "contact_id", null: false
+    t.bigint "list_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contact_id", "list_id"], name: "index_contact_list_memberships_on_contact_id_and_list_id", unique: true
+    t.index ["contact_id"], name: "index_contact_list_memberships_on_contact_id"
+    t.index ["list_id"], name: "index_contact_list_memberships_on_list_id"
+  end
+
   create_table "contacts", force: :cascade do |t|
     t.citext "email"
     t.string "mobile_number"
@@ -117,6 +127,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_11_023801) do
     t.index ["user_id"], name: "index_import_batches_on_user_id"
   end
 
+  create_table "lists", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.bigint "user_id", null: false
+    t.integer "contacts_count", default: 0, null: false
+    t.boolean "is_active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_lists_on_name"
+    t.index ["user_id", "name"], name: "index_lists_on_user_id_and_name", unique: true
+    t.index ["user_id"], name: "index_lists_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -144,5 +167,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_11_023801) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "audit_logs", "users", column: "actor_id"
   add_foreign_key "campaign_recipients", "contacts"
+  add_foreign_key "contact_list_memberships", "contacts"
+  add_foreign_key "contact_list_memberships", "lists"
   add_foreign_key "import_batches", "users"
+  add_foreign_key "lists", "users"
 end

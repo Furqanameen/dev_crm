@@ -11,6 +11,17 @@ Rails.application.routes.draw do
   namespace :admin do
     root 'dashboard#index'
     
+    resources :lists do
+      resources :contact_list_memberships, only: [:create, :destroy]
+    end
+    
+    resources :contact_list_memberships, only: [:destroy] do
+      collection do
+        post :bulk_add
+        post :bulk_update
+      end
+    end
+    
     resources :contacts do
       collection do
         get :export

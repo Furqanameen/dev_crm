@@ -1,0 +1,49 @@
+<% content_for :page_title, "Edit List" %>
+
+<div class="admin-header">
+  <div>
+    <h1 class="admin-title">Edit List</h1>
+    <p class="admin-subtitle">Update <%= @list.name %></p>
+  </div>
+  <div class="admin-actions">
+    <%= link_to "Back to List", admin_list_path(@list), class: "btn btn-outline" %>
+  </div>
+</div>
+
+<div class="max-w-2xl">
+  <%= form_with model: [:admin, @list], local: true, class: "space-y-6" do |f| %>
+    <% if @list.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@list.errors.count, "error") %> prohibited this list from being saved:</h4>
+        <ul class="mt-2 list-disc list-inside">
+          <% @list.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= f.label :name, class: "form-label" %>
+      <%= f.text_field :name, class: "form-input", placeholder: "Enter list name" %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :description, class: "form-label" %>
+      <%= f.text_area :description, rows: 4, class: "form-input", placeholder: "Enter list description (optional)" %>
+    </div>
+
+    <div class="form-group">
+      <div class="flex items-center">
+        <%= f.check_box :is_active, class: "form-checkbox" %>
+        <%= f.label :is_active, "Active", class: "form-label ml-2" %>
+      </div>
+      <p class="text-sm text-gray-600 mt-1">Active lists can be used for campaigns and exports</p>
+    </div>
+
+    <div class="flex justify-end space-x-3">
+      <%= link_to "Cancel", admin_list_path(@list), class: "btn btn-outline" %>
+      <%= f.submit "Update List", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>

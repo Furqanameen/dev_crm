@@ -1,0 +1,222 @@
+<% content_for :page_title, @list.name %>
+
+<div class="admin-header">
+  <div>
+    <h1 class="admin-title"><%= @list.name %></h1>
+    <p class="admin-subtitle">
+      <%= @list.contacts_count %> contacts
+      <% unless @list.is_active? %>
+        <span class="badge badge-secondary ml-2">Inactive</span>
+      <% end %>
+    </p>
+  </div>
+  <div class="admin-actions">
+    <%= link_to "Add Contacts", admin_contacts_path(list_id: @list.id), class: "btn btn-primary" %>
+    <%= link_to "Edit List", edit_admin_list_path(@list), class: "btn btn-secondary" %>
+    <%= link_to admin_list_path(@list), method: :delete, 
+        class: "btn btn-danger",
+        data: { 
+          confirm: "Are you sure you want to delete '#{@list.name}'? This will remove all contacts from the list (contacts themselves will not be deleted)."
+        } do %>
+      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+      </svg>
+      Delete List
+    <% end %>
+    <%= link_to "Back to Lists", admin_lists_path, class: "btn btn-outline" %>
+  </div>
+</div>
+
+<% if @list.description.present? %>
+  <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+    <p class="text-gray-700"><%= simple_format(@list.description) %></p>
+  </div>
+<% end %>
+
+<div class="admin-content">
+  <% if @contacts.any? %>
+    <div class="card">
+      <div class="card-header">
+        <h3 class="text-lg font-semibold">Contacts in this list</h3>
+      </div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Contact</th>
+              <th>Type</th>
+              <th>Email</th>
+              <th>Mobile</th>
+              <th>Status</th>
+              <th>Added</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @contacts.each do |contact| %>
+              <% membership = contact.contact_list_memberships.find_by(list: @list) %>
+              <tr>
+                <td>
+                  <div class="flex items-center">
+                    <div class="avatar">
+                      <%= contact.full_name&.first&.upcase || contact.company_name&.first&.upcase || '?' %>
+                    </div>
+                    <div class="ml-3">
+                      <div class="text-sm font-medium text-gray-900">
+                        <%= link_to (contact.full_name.presence || contact.company_name), 
+                            admin_contact_path(contact), 
+                            class: "hover:text-blue-600" %>
+                      </div>
+                      <% if contact.company? && contact.company_name.present? %>
+                        <div class="text-sm text-gray-500"><%= contact.company_name %></div>
+                      <% end %>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge <%= contact.individual? ? 'badge-primary' : 'badge-secondary' %>">
+                    <%= contact.account_type.humanize %>
+                  </span>
+                </td>
+                <td class="text-sm text-gray-600">
+                  <%= contact.email.presence || '-' %>
+                </td>
+                <td class="text-sm text-gray-600">
+                  <%= contact.mobile_number.presence || '-' %>
+                </td>
+                <td>
+                  <span class="badge 
+                    <%= case contact.consent_status
+                        when 'consented' then 'badge-success'
+                        when 'unsubscribed' then 'badge-danger'
+                        else 'badge-secondary'
+                        end %>">
+                    <%= contact.consent_status.humanize %>
+                  </span>
+                </td>
+                <td class="text-sm text-gray-500">
+                  <%= time_ago_in_words(membership&.created_at || contact.created_at) %> ago
+                </td>
+                <td>
+                  <% if membership %>
+                    <%= link_to "Remove", admin_contact_list_membership_path(membership), 
+                        method: :delete,
+                        class: "btn btn-sm btn-danger",
+                        confirm: "Remove this contact from the list?",
+                        remote: true,
+                        data: { 
+                          contact_id: contact.id,
+                          membership_id: membership.id,
+                          contact_name: contact.full_name.presence || contact.company_name
+                        } %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <% if @total_pages > 1 %>
+      <div class="pagination-wrapper">
+        <nav class="pagination">
+          <% if @page > 1 %>
+            <%= link_to "Previous", admin_list_path(@list, page: @page - 1), class: "pagination-link" %>
+          <% end %>
+          
+          <span class="pagination-info">
+            Page <%= @page %> of <%= @total_pages %> 
+            (<%= @total_count %> total contacts)
+          </span>
+          
+          <% if @page < @total_pages %>
+            <%= link_to "Next", admin_list_path(@list, page: @page + 1), class: "pagination-link" %>
+          <% end %>
+        </nav>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="empty-state">
+      <div class="empty-state-icon">
+        <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+        </svg>
+      </div>
+      <h3 class="empty-state-title">No contacts in this list</h3>
+      <p class="empty-state-description">
+        Add contacts to this list from the contacts page
+      </p>
+      <%= link_to "Browse Contacts", admin_contacts_path, class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle AJAX responses for contact removal
+  document.addEventListener('ajax:success', function(event) {
+    const data = event.detail[0];
+    if (data && data.success) {
+      // Show success message
+      showNotification(data.message, 'success');
+      
+      // Remove the row from the table
+      const membershipId = data.membership_id;
+      const removeLink = event.target;
+      const row = removeLink.closest('tr');
+      if (row) {
+        row.style.transition = 'opacity 0.3s ease';
+        row.style.opacity = '0';
+        setTimeout(() => {
+          row.remove();
+          
+          // Check if table is now empty
+          const tbody = document.querySelector('table tbody');
+          if (tbody && tbody.children.length === 0) {
+            location.reload(); // Reload to show empty state
+          }
+        }, 300);
+      }
+    }
+  });
+
+  document.addEventListener('ajax:error', function(event) {
+    const data = event.detail[0];
+    const message = data && data.message ? data.message : 'Failed to remove contact';
+    showNotification(message, 'error');
+  });
+
+  function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+      <div class="notification-content">
+        <span>${message}</span>
+        <button type="button" class="notification-close">&times;</button>
+      </div>
+    `;
+
+    // Add to page
+    document.body.appendChild(notification);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.parentNode.removeChild(notification);
+      }
+    }, 5000);
+
+    // Close button functionality
+    const closeBtn = notification.querySelector('.notification-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      });
+    }
+  }
+});
+</script>
