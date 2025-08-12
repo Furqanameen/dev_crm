@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  description: MyText
+  user: one
+  contacts_count: 1
+  is_active: false
+
+two:
+  name: MyString
+  description: MyText
+  user: two
+  contacts_count: 1
+  is_active: false

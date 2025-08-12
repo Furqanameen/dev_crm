@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact List Test</title>
+    <meta name="csrf-token" content="test-token">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            min-width: 300px;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            background: white;
+            border: 1px solid #e5e7eb;
+        }
+
+        .notification-success {
+            border-left: 4px solid #10b981;
+        }
+
+        .notification-error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .notification-info {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .notification-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 0;
+            margin-left: 12px;
+        }
+
+        .notification-close:hover {
+            color: #374151;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.hidden {
+            display: none;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #374151;
+            border-color: #d1d5db;
+        }
+
+        .btn-outline:hover {
+            background: #f9fafb;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-6xl mx-auto py-8 px-4">
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold text-gray-900">Contacts</h1>
+                    <a href="#" class="btn btn-primary">Add Contact</a>
+                </div>
+            </div>
+
+            <!-- Bulk Actions Bar (hidden by default) -->
+            <div id="bulk-actions" class="hidden bg-blue-50 px-6 py-3 border-b border-blue-200">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <span id="selected-count" class="font-medium text-blue-900">0 contacts selected</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button type="button" id="clear-selection" class="btn btn-sm btn-outline">
+                            Clear Selection
+                        </button>
+                        <button type="button" id="add-to-existing-list" class="btn btn-sm btn-secondary">
+                            Add to Existing List
+                        </button>
+                        <button type="button" id="create-new-list" class="btn btn-sm btn-primary">
+                            Create New List
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <input type="checkbox" id="select-all" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- Sample contacts for testing -->
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <input type="checkbox" class="contact-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500" value="1">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">John Doe</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">john@example.com</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">(555) 123-4567</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Acme Corp</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
+                                <a href="#" class="text-red-600 hover:text-red-900">Delete</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <input type="checkbox" class="contact-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500" value="2">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">Jane Smith</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">jane@example.com</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">(555) 987-6543</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Tech Solutions</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
+                                <a href="#" class="text-red-600 hover:text-red-900">Delete</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <input type="checkbox" class="contact-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500" value="3">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">Bob Johnson</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">bob@example.com</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">(555) 456-7890</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Global Inc</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
+                                <a href="#" class="text-red-600 hover:text-red-900">Delete</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add to Existing List Modal -->
+    <div id="add-to-list-modal" class="modal hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Add to Existing List</h3>
+            </div>
+            <div class="px-6 py-4">
+                <form id="add-to-list-form">
+                    <div class="form-group">
+                        <label for="existing-list-select" class="form-label">Select List</label>
+                        <select id="existing-list-select" class="form-input" required>
+                            <option value="">Choose a list...</option>
+                            <option value="1">Prospects</option>
+                            <option value="2">Customers</option>
+                            <option value="3">Partners</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" class="btn btn-outline modal-close">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add to List</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create New List Modal -->
+    <div id="create-list-modal" class="modal hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Create New List</h3>
+            </div>
+            <div class="px-6 py-4">
+                <form id="create-list-form">
+                    <div class="form-group">
+                        <label for="new-list-name" class="form-label">List Name</label>
+                        <input type="text" id="new-list-name" class="form-input" placeholder="Enter list name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-list-description" class="form-label">Description (optional)</label>
+                        <textarea id="new-list-description" class="form-input" rows="3" placeholder="Enter list description"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" class="btn btn-outline modal-close">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create List & Add Contacts</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Contact lists JavaScript loaded');
+            
+            // Elements
+            const selectAllCheckbox = document.getElementById('select-all');
+            const contactCheckboxes = document.querySelectorAll('.contact-checkbox');
+            const bulkActions = document.getElementById('bulk-actions');
+            const selectedCount = document.getElementById('selected-count');
+            const clearSelectionBtn = document.getElementById('clear-selection');
+            const addToExistingListBtn = document.getElementById('add-to-existing-list');
+            const createNewListBtn = document.getElementById('create-new-list');
+            
+            console.log('Found elements:', {
+                selectAllCheckbox,
+                contactCheckboxes: contactCheckboxes.length,
+                bulkActions,
+                selectedCount
+            });
+            
+            // Modals
+            const addToListModal = document.getElementById('add-to-list-modal');
+            const createListModal = document.getElementById('create-list-modal');
+            const modalCloses = document.querySelectorAll('.modal-close');
+            
+            // Forms
+            const addToListForm = document.getElementById('add-to-list-form');
+            const createListForm = document.getElementById('create-list-form');
+
+            // Initialize selection state on page load
+            updateSelectAllState();
+            updateBulkActions();
+
+            // Select All functionality
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', function() {
+                    console.log('Select all clicked:', this.checked);
+                    const isChecked = this.checked;
+                    contactCheckboxes.forEach(checkbox => {
+                        checkbox.checked = isChecked;
+                    });
+                    updateBulkActions();
+                });
+            }
+
+            // Individual checkbox functionality
+            contactCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    console.log('Individual checkbox clicked:', this.value, this.checked);
+                    updateSelectAllState();
+                    updateBulkActions();
+                });
+            });
+
+            // Clear selection
+            if (clearSelectionBtn) {
+                clearSelectionBtn.addEventListener('click', function() {
+                    contactCheckboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                    if (selectAllCheckbox) {
+                        selectAllCheckbox.checked = false;
+                    }
+                    updateBulkActions();
+                });
+            }
+
+            // Show modals for general list operations
+            if (addToExistingListBtn) {
+                addToExistingListBtn.addEventListener('click', function() {
+                    showModal(addToListModal);
+                });
+            }
+
+            if (createNewListBtn) {
+                createNewListBtn.addEventListener('click', function() {
+                    showModal(createListModal);
+                });
+            }
+
+            // Close modals
+            modalCloses.forEach(closeBtn => {
+                closeBtn.addEventListener('click', function() {
+                    hideAllModals();
+                });
+            });
+
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target.classList.contains('modal')) {
+                    hideAllModals();
+                }
+            });
+
+            // Handle add to existing list form
+            if (addToListForm) {
+                addToListForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.textContent;
+                    
+                    const listId = document.getElementById('existing-list-select').value;
+                    const selectedContactIds = getSelectedContactIds();
+                    
+                    if (!listId) {
+                        showNotification('Please select a list', 'error');
+                        return;
+                    }
+                    
+                    if (selectedContactIds.length === 0) {
+                        showNotification('No contacts selected', 'error');
+                        return;
+                    }
+                    
+                    // Disable button and show loading state
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Adding...';
+                    
+                    // Simulate adding to list
+                    setTimeout(() => {
+                        showNotification(`Added ${selectedContactIds.length} contact(s) to list`, 'success');
+                        clearSelection();
+                        hideAllModals();
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    }, 1000);
+                });
+            }
+
+            // Handle create new list form
+            if (createListForm) {
+                createListForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.textContent;
+                    
+                    const name = document.getElementById('new-list-name').value;
+                    const description = document.getElementById('new-list-description').value;
+                    const selectedContactIds = getSelectedContactIds();
+                    
+                    if (!name.trim()) {
+                        showNotification('Please enter a list name', 'error');
+                        return;
+                    }
+                    
+                    if (selectedContactIds.length === 0) {
+                        showNotification('No contacts selected', 'error');
+                        return;
+                    }
+                    
+                    // Disable button and show loading state
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Creating...';
+                    
+                    // Simulate creating list
+                    setTimeout(() => {
+                        showNotification(`Created list "${name}" with ${selectedContactIds.length} contact(s)`, 'success');
+                        clearSelection();
+                        hideAllModals();
+                        document.getElementById('new-list-name').value = '';
+                        document.getElementById('new-list-description').value = '';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    }, 1500);
+                });
+            }
+
+            // Helper functions
+            function updateSelectAllState() {
+                if (!selectAllCheckbox) return;
+                
+                const checkedCount = document.querySelectorAll('.contact-checkbox:checked').length;
+                const totalCount = contactCheckboxes.length;
+                
+                console.log('Updating select all state:', checkedCount, 'of', totalCount);
+                
+                selectAllCheckbox.checked = checkedCount === totalCount && totalCount > 0;
+                selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < totalCount;
+            }
+
+            function updateBulkActions() {
+                const checkedCount = document.querySelectorAll('.contact-checkbox:checked').length;
+                
+                console.log('Updating bulk actions:', checkedCount, 'contacts selected');
+                
+                if (checkedCount > 0) {
+                    bulkActions.classList.remove('hidden');
+                    if (selectedCount) {
+                        selectedCount.textContent = `${checkedCount} contact${checkedCount !== 1 ? 's' : ''} selected`;
+                    }
+                } else {
+                    bulkActions.classList.add('hidden');
+                }
+            }
+
+            function getSelectedContactIds() {
+                const checked = document.querySelectorAll('.contact-checkbox:checked');
+                return Array.from(checked).map(checkbox => checkbox.value);
+            }
+
+            function showModal(modal) {
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function hideAllModals() {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    modal.classList.add('hidden');
+                });
+                document.body.style.overflow = '';
+            }
+
+            function clearSelection() {
+                contactCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = false;
+                }
+                updateBulkActions();
+            }
+
+            function showNotification(message, type = 'info') {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <span>${message}</span>
+                        <button type="button" class="notification-close">&times;</button>
+                    </div>
+                `;
+
+                // Add to page
+                document.body.appendChild(notification);
+
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 5000);
+
+                // Close button functionality
+                const closeBtn = notification.querySelector('.notification-close');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

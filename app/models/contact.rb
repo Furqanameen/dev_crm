@@ -1,4 +1,8 @@
 class Contact < ApplicationRecord
+  # Associations
+  has_many :contact_list_memberships, dependent: :destroy
+  has_many :lists, through: :contact_list_memberships
+  
   # Enums
   enum :account_type, { individual: 0, company: 1 }
   enum :consent_status, { unknown: 0, consented: 1, unsubscribed: 2 }

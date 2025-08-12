@@ -136,6 +136,48 @@ AuditLog.create!(
 
 puts "Created audit logs"
 
+# Create sample contact lists
+puts "Creating sample contact lists..."
+
+# Get some contacts to add to lists
+sample_contacts = Contact.limit(10)
+
+if sample_contacts.any?
+  # Create lists for the admin user
+  prospect_list = admin.lists.create!(
+    name: 'High Value Prospects',
+    description: 'Potential customers with high conversion probability',
+    is_active: true
+  )
+
+  newsletter_list = admin.lists.create!(
+    name: 'Monthly Newsletter',
+    description: 'Subscribers for our monthly product updates',
+    is_active: true
+  )
+
+  inactive_list = admin.lists.create!(
+    name: 'Inactive Leads',
+    description: 'Leads that need re-engagement',
+    is_active: false
+  )
+
+  # Add contacts to lists
+  sample_contacts[0..4].each do |contact|
+    ContactListMembership.create!(contact: contact, list: prospect_list)
+  end
+
+  sample_contacts[2..7].each do |contact|
+    ContactListMembership.create!(contact: contact, list: newsletter_list)
+  end
+
+  sample_contacts[8..9].each do |contact|
+    ContactListMembership.create!(contact: contact, list: inactive_list)
+  end
+
+  puts "Created #{admin.lists.count} contact lists with memberships"
+end
+
 puts "\n🎉 Seeding completed successfully!"
 puts "\nLogin credentials:"
 puts "Super Admin: superadmin@devcrm.com / #{super_admin_password}"

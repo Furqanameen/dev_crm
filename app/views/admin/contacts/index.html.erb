@@ -1,13 +1,32 @@
 <% content_for :page_title, "Contacts" %>
+<% content_for :extra_css do %>
+  <%= stylesheet_link_tag 'contact_lists', 'data-turbo-track': 'reload' %>
+<% end %>
 
 <div class="admin-header">
   <div>
-    <h1 class="admin-title">Contacts</h1>
-    <p class="admin-subtitle">Manage your CRM contacts</p>
+    <h1 class="admin-title">
+      Contacts
+      <% if @target_list %>
+        <span class="text-base font-normal text-gray-600">→ Adding to "<%= @target_list.name %>"</span>
+      <% end %>
+    </h1>
+    <p class="admin-subtitle">
+      <% if @target_list %>
+        Select contacts to add to "<%= @target_list.name %>" list. Already added contacts are pre-selected.
+      <% else %>
+        Manage your CRM contacts
+      <% end %>
+    </p>
   </div>
   <div class="admin-actions">
-    <%= link_to "New Contact", new_admin_contact_path, class: "btn btn-primary" %>
-    <%= link_to "Export CSV", export_admin_contacts_path, class: "btn btn-outline" %>
+    <% if @target_list %>
+      <%= link_to "Back to List", admin_list_path(@target_list), class: "btn btn-outline" %>
+    <% else %>
+      <%= link_to "New Contact", new_admin_contact_path, class: "btn btn-primary" %>
+      <%= link_to "Manage Lists", admin_lists_path, class: "btn btn-secondary" %>
+      <%= link_to "Export CSV", export_admin_contacts_path, class: "btn btn-outline" %>
+    <% end %>
   </div>
 </div>
 
@@ -66,11 +85,85 @@
   <% end %>
 </div>
 
+<!-- Bulk Actions -->
+<div id="bulk-actions" class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6 hidden shadow-sm">
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
+    <div class="flex items-center space-x-3">
+      <div class="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
+        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+      <div>
+        <span id="selected-count" class="font-semibold text-blue-900">0 contacts selected</span>
+        <% if @target_list %>
+          <div class="text-sm text-blue-700">Managing contacts for "<%= @target_list.name %>"</div>
+        <% else %>
+          <div class="text-sm text-blue-700">Choose an action below</div>
+        <% end %>
+      </div>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <button type="button" id="clear-selection" class="btn btn-sm btn-outline">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        Clear
+      </button>
+      <% if @target_list %>
+        <% if @target_list.contacts_count > 0 %>
+          <button type="button" id="update-list-membership" class="btn btn-sm btn-primary">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Update "<%= truncate(@target_list.name, length: 20) %>"
+          </button>
+        <% else %>
+          <button type="button" id="add-to-target-list" class="btn btn-sm btn-primary">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Add to "<%= truncate(@target_list.name, length: 20) %>"
+          </button>
+        <% end %>
+        <button type="button" id="remove-from-target-list" class="btn btn-sm btn-danger">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          Remove
+        </button>
+        <button type="button" id="add-to-existing-list" class="btn btn-sm btn-secondary">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          Add to Different List
+        </button>
+      <% else %>
+        <button type="button" id="add-to-existing-list" class="btn btn-sm btn-secondary">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+          </svg>
+          Add to List
+        </button>
+        <button type="button" id="create-new-list" class="btn btn-sm btn-primary">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          Create New List
+        </button>
+      <% end %>
+    </div>
+  </div>
+</div>
+
 <!-- Contacts Table -->
 <div class="admin-table-container">
   <table class="admin-table">
     <thead>
       <tr>
+        <th class="w-12">
+          <input type="checkbox" id="select-all" class="form-checkbox">
+        </th>
         <th>Contact</th>
         <th>Type</th>
         <th>Email</th>
@@ -83,6 +176,9 @@
     <tbody>
       <% @contacts.each do |contact| %>
         <tr>
+          <td>
+            <input type="checkbox" class="contact-checkbox form-checkbox" value="<%= contact.id %>" data-contact-id="<%= contact.id %>" <%= 'checked' if @existing_contact_ids.include?(contact.id) %>>
+          </td>
           <td>
             <div class="flex items-center">
               <div class="icon icon-user text-gray-400 mr-2"></div>
@@ -168,3 +264,620 @@
     </div>
   </div>
 <% end %>
+
+<!-- Modals (only show when not in list context) -->
+<% unless @target_list %>
+
+<!-- Add to Existing List Modal -->
+<div id="add-to-list-modal" class="modal hidden">
+  <div class="modal-content max-w-md">
+    <div class="modal-header bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+      <div class="flex items-center space-x-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+        </svg>
+        <h3 class="modal-title">Add to Existing List</h3>
+      </div>
+      <button type="button" class="modal-close text-white hover:text-gray-200">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <p class="text-sm text-blue-700">
+          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Selected contacts will be added to the chosen list
+        </p>
+      </div>
+      <form id="add-to-list-form">
+        <div class="form-group">
+          <label for="existing-list-select" class="form-label">Select List</label>
+          <select id="existing-list-select" class="form-select" required>
+            <option value="">Choose a list...</option>
+            <% @user_lists.each do |list| %>
+              <option value="<%= list.id %>">
+                <%= list.display_name %> (<%= pluralize(list.contacts_count, 'contact') %>)
+              </option>
+            <% end %>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary modal-close">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Add to List
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Create New List Modal -->
+<div id="create-list-modal" class="modal hidden">
+  <div class="modal-content max-w-md">
+    <div class="modal-header bg-gradient-to-r from-green-500 to-green-600 text-white">
+      <div class="flex items-center space-x-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        <h3 class="modal-title">Create New List</h3>
+      </div>
+      <button type="button" class="modal-close text-white hover:text-gray-200">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+        <p class="text-sm text-green-700">
+          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Create a new list and add selected contacts to it
+        </p>
+      </div>
+      <form id="create-list-form">
+        <div class="form-group">
+          <label for="new-list-name" class="form-label">List Name</label>
+          <input type="text" id="new-list-name" class="form-control" placeholder="e.g., Newsletter Subscribers" required>
+        </div>
+        <div class="form-group">
+          <label for="new-list-description" class="form-label">Description (Optional)</label>
+          <textarea id="new-list-description" class="form-control" rows="3" placeholder="Describe the purpose of this list..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary modal-close">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Create & Add Contacts
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% end %>  <!-- Create New List Modal -->
+  <div id="create-list-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Create New List</h3>
+        <button type="button" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="create-list-form">
+          <div class="form-group">
+            <label for="new-list-name" class="form-label">List Name</label>
+            <input type="text" id="new-list-name" class="form-input" required placeholder="Enter list name">
+          </div>
+          <div class="form-group">
+            <label for="new-list-description" class="form-label">Description (optional)</label>
+            <textarea id="new-list-description" class="form-input" rows="3" placeholder="Enter list description"></textarea>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" class="btn btn-outline modal-close">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create List & Add Contacts</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+<% end %>  <!-- Create New List Modal -->
+  <div id="create-list-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Create New List</h3>
+        <button type="button" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="create-list-form">
+          <div class="form-group">
+            <label for="new-list-name" class="form-label">List Name</label>
+            <input type="text" id="new-list-name" class="form-input" placeholder="Enter list name" required>
+          </div>
+          <div class="form-group">
+            <label for="new-list-description" class="form-label">Description (optional)</label>
+            <textarea id="new-list-description" class="form-input" rows="3" placeholder="Enter list description"></textarea>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" class="btn btn-outline modal-close">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create List & Add Contacts</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Contact lists JavaScript loaded');
+  
+  // Elements
+  const selectAllCheckbox = document.getElementById('select-all');
+  const contactCheckboxes = document.querySelectorAll('.contact-checkbox');
+  const bulkActions = document.getElementById('bulk-actions');
+  const selectedCount = document.getElementById('selected-count');
+  const clearSelectionBtn = document.getElementById('clear-selection');
+  const addToExistingListBtn = document.getElementById('add-to-existing-list');
+  const createNewListBtn = document.getElementById('create-new-list');
+  const addToTargetListBtn = document.getElementById('add-to-target-list');
+  const removeFromTargetListBtn = document.getElementById('remove-from-target-list');
+  const updateListMembershipBtn = document.getElementById('update-list-membership');
+  
+  console.log('Found elements:', {
+    selectAllCheckbox,
+    contactCheckboxes: contactCheckboxes.length,
+    bulkActions,
+    selectedCount
+  });
+  
+  // Check if we're in list context (from URL params)
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetListId = urlParams.get('list_id');
+  
+  // Store initial checkbox states for list editing
+  const initialContactStates = new Map();
+  if (targetListId) {
+    contactCheckboxes.forEach(checkbox => {
+      initialContactStates.set(checkbox.value, checkbox.checked);
+    });
+  }
+  
+  // Modals
+  const addToListModal = document.getElementById('add-to-list-modal');
+  const createListModal = document.getElementById('create-list-modal');
+  const modalCloses = document.querySelectorAll('.modal-close');
+  
+  // Forms
+  const addToListForm = document.getElementById('add-to-list-form');
+  const createListForm = document.getElementById('create-list-form');
+
+  // Initialize selection state on page load
+  updateSelectAllState();
+  updateBulkActions();
+
+  // Select All functionality
+  if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', function() {
+      console.log('Select all clicked:', this.checked);
+      const isChecked = this.checked;
+      contactCheckboxes.forEach(checkbox => {
+        checkbox.checked = isChecked;
+      });
+      updateBulkActions();
+    });
+  }
+
+  // Individual checkbox functionality
+  contactCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      console.log('Individual checkbox clicked:', this.value, this.checked);
+      updateSelectAllState();
+      updateBulkActions();
+    });
+  });
+
+  // Clear selection
+  if (clearSelectionBtn) {
+    clearSelectionBtn.addEventListener('click', function() {
+      contactCheckboxes.forEach(checkbox => {
+        checkbox.checked = false;
+      });
+      if (selectAllCheckbox) {
+        selectAllCheckbox.checked = false;
+      }
+      updateBulkActions();
+    });
+  }
+
+  // Show modals for general list operations
+  if (addToExistingListBtn) {
+    addToExistingListBtn.addEventListener('click', function() {
+      showModal(addToListModal);
+    });
+  }
+
+  if (createNewListBtn) {
+    createNewListBtn.addEventListener('click', function() {
+      showModal(createListModal);
+    });
+  }
+
+  // Handle target list operations
+  if (addToTargetListBtn) {
+    addToTargetListBtn.addEventListener('click', function() {
+      const selectedContactIds = getSelectedContactIds();
+      if (selectedContactIds.length === 0) {
+        alert('No contacts selected');
+        return;
+      }
+      addContactsToList(targetListId, selectedContactIds, null);
+    });
+  }
+
+  if (updateListMembershipBtn) {
+    updateListMembershipBtn.addEventListener('click', function() {
+      const allContactIds = getAllContactIds();
+      const selectedContactIds = getSelectedContactIds();
+      
+      if (confirm('This will update the list membership based on your selections. Continue?')) {
+        updateListMembership(targetListId, selectedContactIds);
+      }
+    });
+  }
+
+  if (removeFromTargetListBtn) {
+    removeFromTargetListBtn.addEventListener('click', function() {
+      const selectedContactIds = getSelectedContactIds();
+      if (selectedContactIds.length === 0) {
+        alert('No contacts selected');
+        return;
+      }
+      if (confirm(`Remove ${selectedContactIds.length} contact(s) from the list?`)) {
+        removeContactsFromList(targetListId, selectedContactIds);
+      }
+    });
+  }
+
+  // Close modals
+  modalCloses.forEach(closeBtn => {
+    closeBtn.addEventListener('click', function() {
+      hideAllModals();
+    });
+  });
+
+  // Close modal when clicking outside
+  window.addEventListener('click', function(event) {
+    if (event.target.classList.contains('modal')) {
+      hideAllModals();
+    }
+  });
+
+  // Handle add to existing list form
+  if (addToListForm) {
+    addToListForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const submitBtn = this.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      
+      const listId = document.getElementById('existing-list-select').value;
+      const selectedContactIds = getSelectedContactIds();
+      
+      if (!listId) {
+        showNotification('Please select a list', 'error');
+        return;
+      }
+      
+      if (selectedContactIds.length === 0) {
+        showNotification('No contacts selected', 'error');
+        return;
+      }
+      
+      // Disable button and show loading state
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Adding...';
+      
+      addContactsToList(listId, selectedContactIds, function() {
+        // Re-enable button on completion
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      });
+    });
+  }
+
+  // Handle create new list form
+  if (createListForm) {
+    createListForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const submitBtn = this.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      
+      const name = document.getElementById('new-list-name').value;
+      const description = document.getElementById('new-list-description').value;
+      const selectedContactIds = getSelectedContactIds();
+      
+      if (!name.trim()) {
+        showNotification('Please enter a list name', 'error');
+        return;
+      }
+      
+      if (selectedContactIds.length === 0) {
+        showNotification('No contacts selected', 'error');
+        return;
+      }
+      
+      // Disable button and show loading state
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating...';
+      
+      createListWithContacts(name, description, selectedContactIds, function() {
+        // Re-enable button on completion
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      });
+    });
+  }
+
+  // Helper functions
+  function updateSelectAllState() {
+    if (!selectAllCheckbox) return;
+    
+    const checkedCount = document.querySelectorAll('.contact-checkbox:checked').length;
+    const totalCount = contactCheckboxes.length;
+    
+    console.log('Updating select all state:', checkedCount, 'of', totalCount);
+    
+    selectAllCheckbox.checked = checkedCount === totalCount && totalCount > 0;
+    selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < totalCount;
+  }
+
+  function updateBulkActions() {
+    const checkedCount = document.querySelectorAll('.contact-checkbox:checked').length;
+    
+    console.log('Updating bulk actions:', checkedCount, 'contacts selected');
+    
+    if (checkedCount > 0) {
+      bulkActions.classList.remove('hidden');
+      if (selectedCount) {
+        selectedCount.textContent = `${checkedCount} contact${checkedCount !== 1 ? 's' : ''} selected`;
+      }
+    } else {
+      bulkActions.classList.add('hidden');
+    }
+  }
+
+  function getSelectedContactIds() {
+    const checked = document.querySelectorAll('.contact-checkbox:checked');
+    return Array.from(checked).map(checkbox => checkbox.value);
+  }
+
+  function getAllContactIds() {
+    const allCheckboxes = document.querySelectorAll('.contact-checkbox');
+    return Array.from(allCheckboxes).map(checkbox => checkbox.value);
+  }
+
+  function showModal(modal) {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function hideAllModals() {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+      modal.classList.add('hidden');
+    });
+    document.body.style.overflow = '';
+  }
+
+  function removeContactsFromList(listId, contactIds) {
+    contactIds.forEach(contactId => {
+      fetch(`/admin/contact_list_memberships/${listId}_${contactId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Uncheck the checkbox for this contact
+          const checkbox = document.querySelector(`.contact-checkbox[value="${contactId}"]`);
+          if (checkbox) {
+            checkbox.checked = false;
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    });
+    
+    showNotification(`Removed ${contactIds.length} contact(s) from list`, 'success');
+    clearSelection();
+  }
+
+  function addContactsToList(listId, contactIds, callback) {
+    const formData = new FormData();
+    formData.append('list_id', listId);
+    contactIds.forEach(id => {
+      formData.append('contact_ids[]', id);
+    });
+
+    fetch('/admin/contact_list_memberships/bulk_add', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showNotification(data.message, 'success');
+        clearSelection();
+        hideAllModals();
+        
+        // Redirect to list page after successful addition
+        if (data.redirect_url) {
+          setTimeout(() => {
+            window.location.href = data.redirect_url;
+          }, 1500);
+        }
+      } else {
+        showNotification(data.message, 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification('An error occurred', 'error');
+    })
+    .finally(() => {
+      if (callback) callback();
+    });
+  }
+
+  function updateListMembership(listId, selectedContactIds) {
+    const formData = new FormData();
+    formData.append('list_id', listId);
+    selectedContactIds.forEach(id => {
+      formData.append('contact_ids[]', id);
+    });
+
+    fetch('/admin/contact_list_memberships/bulk_update', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showNotification(data.message, 'success');
+        clearSelection();
+        
+        // Update the initial states to reflect current selection
+        if (targetListId) {
+          contactCheckboxes.forEach(checkbox => {
+            initialContactStates.set(checkbox.value, checkbox.checked);
+          });
+        }
+        
+        // Redirect to list page after successful update
+        if (data.redirect_url) {
+          setTimeout(() => {
+            window.location.href = data.redirect_url;
+          }, 1500);
+        }
+      } else {
+        showNotification(data.message, 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification('An error occurred', 'error');
+    });
+  }
+
+  function createListWithContacts(name, description, contactIds, callback) {
+    const listData = {
+      list: {
+        name: name,
+        description: description,
+        is_active: true
+      }
+    };
+
+    // First create the list
+    fetch('/admin/lists', {
+      method: 'POST',
+      body: JSON.stringify(listData),
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Failed to create list');
+      }
+    })
+    .then(data => {
+      // Now add contacts to the newly created list
+      if (data.list && data.list.id) {
+        addContactsToList(data.list.id, contactIds, callback);
+      } else {
+        showNotification('List created successfully!', 'success');
+        clearSelection();
+        hideAllModals();
+        // Reload page to show updated state
+        setTimeout(() => window.location.reload(), 1000);
+        if (callback) callback();
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification('Failed to create list', 'error');
+      if (callback) callback();
+    });
+  }
+
+  function clearSelection() {
+    contactCheckboxes.forEach(checkbox => {
+      checkbox.checked = false;
+    });
+    if (selectAllCheckbox) {
+      selectAllCheckbox.checked = false;
+    }
+    updateBulkActions();
+  }
+
+  function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+      <div class="notification-content">
+        <span>${message}</span>
+        <button type="button" class="notification-close">&times;</button>
+      </div>
+    `;
+
+    // Add to page
+    document.body.appendChild(notification);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.parentNode.removeChild(notification);
+      }
+    }, 5000);
+
+    // Close button functionality
+    const closeBtn = notification.querySelector('.notification-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      });
+    }
+  }
+});
+</script>

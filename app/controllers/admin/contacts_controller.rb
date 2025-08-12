@@ -4,6 +4,16 @@ class Admin::ContactsController < Admin::BaseController
   def index
     @contacts = policy_scope(Contact)
     
+    # Handle list context for adding contacts to a specific list
+    @target_list = nil
+    @existing_contact_ids = []
+    if params[:list_id].present?
+      @target_list = current_user.lists.find_by(id: params[:list_id])
+      if @target_list
+        @existing_contact_ids = @target_list.contact_ids
+      end
+    end
+    
     # Apply search filter
     if params[:search].present?
       @contacts = @contacts.search(params[:search])
@@ -28,6 +38,9 @@ class Admin::ContactsController < Admin::BaseController
 
     @account_type_counts = Contact.group(:account_type).count
     @consent_status_counts = Contact.group(:consent_status).count
+    
+    # Include lists for contact list management
+    @user_lists = current_user.lists.active.order(:name)
   end
 
   def show

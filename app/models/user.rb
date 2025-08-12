@@ -11,6 +11,7 @@ class User < ApplicationRecord
   # Associations
   has_many :import_batches, dependent: :destroy
   has_many :audit_logs, foreign_key: :actor_id, dependent: :destroy
+  has_many :lists, dependent: :destroy
 
   # Validations
   validates :email, presence: true, uniqueness: { case_sensitive: false }
