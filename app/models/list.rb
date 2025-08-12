@@ -14,6 +14,7 @@ class List < ApplicationRecord
   
   # Callbacks
   after_create :update_contacts_count
+  after_destroy :update_contacts_count
   
   def display_name
     "#{name} (#{contacts_count})"
