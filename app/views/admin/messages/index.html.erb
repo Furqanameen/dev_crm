@@ -1,0 +1,204 @@
+<div class="mb-8">
+  <h1 class="text-3xl font-bold text-gray-900">Messages</h1>
+  <p class="text-gray-600 mt-2">View and manage all campaign messages and their delivery status.</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+  <div class="bg-white rounded-lg shadow p-4">
+    <div class="flex items-center">
+      <div class="p-2 bg-gray-100 rounded-lg mr-3">
+        <div class="icon icon-list w-5 h-5 text-gray-600"></div>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-gray-600">Total</p>
+        <p class="text-xl font-bold text-gray-900"><%= @stats[:total] %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-4">
+    <div class="flex items-center">
+      <div class="p-2 bg-yellow-100 rounded-lg mr-3">
+        <div class="icon icon-clock w-5 h-5 text-yellow-600"></div>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-gray-600">Queued</p>
+        <p class="text-xl font-bold text-yellow-600"><%= @stats[:queued] %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-4">
+    <div class="flex items-center">
+      <div class="p-2 bg-blue-100 rounded-lg mr-3">
+        <div class="icon icon-send w-5 h-5 text-blue-600"></div>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-gray-600">Sent</p>
+        <p class="text-xl font-bold text-blue-600"><%= @stats[:sent] %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-4">
+    <div class="flex items-center">
+      <div class="p-2 bg-green-100 rounded-lg mr-3">
+        <div class="icon icon-check w-5 h-5 text-green-600"></div>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-gray-600">Delivered</p>
+        <p class="text-xl font-bold text-green-600"><%= @stats[:delivered] %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-4">
+    <div class="flex items-center">
+      <div class="p-2 bg-red-100 rounded-lg mr-3">
+        <div class="icon icon-x w-5 h-5 text-red-600"></div>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-gray-600">Failed</p>
+        <p class="text-xl font-bold text-red-600"><%= @stats[:failed] %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-4">
+    <div class="flex items-center">
+      <div class="p-2 bg-orange-100 rounded-lg mr-3">
+        <div class="icon icon-alert-triangle w-5 h-5 text-orange-600"></div>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-gray-600">Bounced</p>
+        <p class="text-xl font-bold text-orange-600"><%= @stats[:bounced] %></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white rounded-lg shadow mb-6 p-4">
+  <%= form_with url: admin_messages_path, method: :get, local: true, class: "flex flex-wrap gap-4 items-end" do |form| %>
+    <div>
+      <%= form.label :status, class: "label" %>
+      <%= form.select :status, options_for_select([["All Statuses", ""]] + @statuses.map { |s| [s.humanize, s] }, params[:status]), {}, { class: "form-select" } %>
+    </div>
+    
+    <div>
+      <%= form.label :channel, class: "label" %>
+      <%= form.select :channel, options_for_select([["All Channels", ""]] + @channels.map { |c| [c.humanize, c] }, params[:channel]), {}, { class: "form-select" } %>
+    </div>
+    
+    <div>
+      <%= form.label :schedule_id, "Schedule", class: "label" %>
+      <%= form.select :schedule_id, options_for_select([["All Schedules", ""]] + @schedules, params[:schedule_id]), {}, { class: "form-select" } %>
+    </div>
+    
+    <div>
+      <%= form.submit "Filter", class: "btn btn-secondary" %>
+      <%= link_to "Clear", admin_messages_path, class: "btn btn-ghost" %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Messages Table -->
+<div class="bg-white rounded-lg shadow overflow-hidden">
+  <% if @messages.any? %>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recipient</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Schedule</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Channel</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Events</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sent At</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @messages.each do |message| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-8 w-8">
+                    <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                      <span class="text-sm font-medium text-gray-700">
+                        <%= message.contact.first_name&.first || message.contact.email&.first&.upcase %>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">
+                      <%= message.contact.full_name %>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                      <%= message.contact.email %>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">
+                  <%= link_to message.schedule.name, admin_schedule_path(message.schedule), class: "text-primary-600 hover:text-primary-700" %>
+                </div>
+                <div class="text-sm text-gray-500">
+                  <%= message.schedule.template.name %>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <% case message.channel %>
+                  <% when 'email' %>
+                    <div class="icon icon-mail w-4 h-4 text-gray-400 mr-2"></div>
+                  <% when 'sms' %>
+                    <div class="icon icon-message-square w-4 h-4 text-gray-400 mr-2"></div>
+                  <% when 'whatsapp' %>
+                    <div class="icon icon-message-circle w-4 h-4 text-gray-400 mr-2"></div>
+                  <% end %>
+                  <span class="text-sm text-gray-900"><%= message.channel.humanize %></span>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full <%= 
+                  case message.status
+                  when 'queued' then 'bg-yellow-100 text-yellow-800'
+                  when 'sent' then 'bg-blue-100 text-blue-800'
+                  when 'delivered' then 'bg-green-100 text-green-800'
+                  when 'failed' then 'bg-red-100 text-red-800'
+                  when 'bounced' then 'bg-orange-100 text-orange-800'
+                  else 'bg-gray-100 text-gray-800'
+                  end %>">
+                  <%= message.status.humanize %>
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= pluralize(message.message_events.count, 'event') %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= message.sent_at&.strftime("%b %d, %Y at %I:%M %p") || 'Not sent' %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <%= link_to "View", admin_message_path(message), class: "text-primary-600 hover:text-primary-700" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+      <%= paginate @messages if respond_to?(:paginate) %>
+    </div>
+  <% else %>
+    <div class="px-6 py-12 text-center">
+      <div class="icon icon-message-square text-gray-400 mx-auto mb-4" style="font-size: 3rem;"></div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No messages found</h3>
+      <p class="text-gray-500">Messages will appear here when campaigns are sent.</p>
+    </div>
+  <% end %>
+</div>

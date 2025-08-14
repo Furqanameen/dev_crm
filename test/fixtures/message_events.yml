@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  message: one
+  event_type: 1
+  occurred_at: 2025-08-13 01:09:32
+  raw: 
+
+two:
+  message: two
+  event_type: 1
+  occurred_at: 2025-08-13 01:09:32
+  raw: 

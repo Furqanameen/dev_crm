@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  template: one
+  channel: 1
+  target_type: MyString
+  target_id: 1
+  provider: one
+  run_at: 2025-08-13 01:09:15
+  state: 1
+
+two:
+  template: two
+  channel: 1
+  target_type: MyString
+  target_id: 1
+  provider: two
+  run_at: 2025-08-13 01:09:15
+  state: 1

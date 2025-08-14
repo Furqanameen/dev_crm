@@ -1,0 +1,200 @@
+<% content_for :title, "New Schedule" %>
+
+<div class="admin-content">
+  <div class="admin-header">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="admin-title">Create New Schedule</h1>
+        <p class="admin-subtitle">Schedule a campaign to be sent to your contacts</p>
+      </div>
+      <%= link_to admin_schedules_path, class: "btn btn-secondary" do %>
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        Back to Schedules
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <%= form_with model: [:admin, @schedule], local: true, class: "space-y-6" do |form| %>
+      <% if @schedule.errors.any? %>
+        <div class="alert alert-danger">
+          <h4><%= pluralize(@schedule.errors.count, "error") %> prohibited this schedule from being saved:</h4>
+          <ul class="mt-2">
+            <% @schedule.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Basic Information -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">Basic Information</h3>
+          
+          <div class="form-group">
+            <%= form.label :name, class: "form-label" %>
+            <%= form.text_field :name, class: "form-control", placeholder: "e.g., Welcome Campaign - January 2025" %>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :template_id, "Template", class: "form-label" %>
+            <% if @templates.any? %>
+              <%= form.select :template_id, 
+                  options_from_collection_for_select(@templates, :id, :name, @schedule.template_id),
+                  { prompt: "Select a template" },
+                  { class: "form-control" } %>
+            <% else %>
+              <p class="text-sm text-gray-500">No templates available. <%= link_to "Create a template", new_admin_template_path, class: "text-blue-600 hover:text-blue-800" %> first.</p>
+            <% end %>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :provider_id, "Provider (Optional)", class: "form-label" %>
+            <% if @providers.any? %>
+              <%= form.select :provider_id, 
+                  options_from_collection_for_select(@providers, :id, :name, @schedule.provider_id),
+                  { prompt: "Use template default provider" },
+                  { class: "form-control" } %>
+              <p class="form-help">Override the template's default provider if needed</p>
+            <% else %>
+              <p class="text-sm text-gray-500">No providers available. <%= link_to "Create a provider", admin_providers_path, class: "text-blue-600 hover:text-blue-800" %> first.</p>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Targeting & Timing -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">Targeting & Timing</h3>
+          
+          <div class="form-group">
+            <%= form.label :target_id, "Target List", class: "form-label" %>
+            <% if @contact_lists.any? %>
+              <%= form.select :target_id, 
+                  options_from_collection_for_select(@contact_lists, :id, :display_name, @schedule.target_id),
+                  { prompt: "Select a contact list" },
+                  { class: "form-control" } %>
+              <%= form.hidden_field :target_type, value: "List" %>
+              <p class="form-help">Choose which contact list to send this campaign to</p>
+            <% else %>
+              <p class="text-sm text-gray-500">No contact lists available. <%= link_to "Create a contact list", admin_lists_path, class: "text-blue-600 hover:text-blue-800" %> first.</p>
+            <% end %>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :send_at, "Send At", class: "form-label" %>
+            <%= form.datetime_local_field :send_at, class: "form-control", value: @schedule.send_at&.strftime("%Y-%m-%dT%H:%M") %>
+            <p class="form-help">When should this campaign be sent? Leave blank to save as draft.</p>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :state, "Initial State", class: "form-label" %>
+            <%= form.select :state, 
+                options_for_select([
+                  ['Draft - Save for later editing', 'draft'],
+                  ['Scheduled - Queue for sending at specified time', 'scheduled']
+                ], @schedule.state || 'draft'),
+                {},
+                { class: "form-control" } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campaign Details -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">Campaign Details</h3>
+        
+        <div class="form-group">
+          <%= form.label :description, class: "form-label" %>
+          <%= form.text_area :description, rows: 3, class: "form-control", placeholder: "Brief description of this campaign (optional)" %>
+        </div>
+
+        <!-- Preview Section -->
+        <div id="template-preview" class="hidden">
+          <h4 class="text-md font-medium text-gray-900 mb-3">Template Preview</h4>
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div id="preview-content">
+              <p class="text-sm text-gray-500">Select a template to see preview</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Target List Info -->
+        <div id="target-list-info" class="hidden">
+          <h4 class="text-md font-medium text-gray-900 mb-3">Target Audience</h4>
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div id="list-info-content">
+              <p class="text-sm text-gray-500">Select a contact list to see details</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+        <%= link_to "Cancel", admin_schedules_path, class: "btn btn-secondary" %>
+        <%= form.submit "Create Schedule", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const templateSelect = document.getElementById('schedule_template_id');
+  const targetSelect = document.getElementById('schedule_target_id');
+  const templatePreview = document.getElementById('template-preview');
+  const targetListInfo = document.getElementById('target-list-info');
+  
+  // Template data (would normally come from server)
+  const templates = <%= @templates.map { |t| { id: t.id, name: t.name, purpose: t.purpose, subject: t.subject } }.to_json.html_safe %>;
+  const contactLists = <%= @contact_lists.map { |l| { id: l.id, name: l.name, contacts_count: l.contacts_count } }.to_json.html_safe %>;
+  
+  if (templateSelect) {
+    templateSelect.addEventListener('change', function() {
+      const templateId = parseInt(this.value);
+      const template = templates.find(t => t.id === templateId);
+      
+      if (template) {
+        templatePreview.classList.remove('hidden');
+        document.getElementById('preview-content').innerHTML = `
+          <div class="space-y-2">
+            <div><strong>Template:</strong> ${template.name}</div>
+            <div><strong>Purpose:</strong> ${template.purpose.charAt(0).toUpperCase() + template.purpose.slice(1)}</div>
+            ${template.subject ? `<div><strong>Subject:</strong> ${template.subject}</div>` : ''}
+          </div>
+        `;
+      } else {
+        templatePreview.classList.add('hidden');
+      }
+    });
+  }
+  
+  if (targetSelect) {
+    targetSelect.addEventListener('change', function() {
+      const listId = parseInt(this.value);
+      const list = contactLists.find(l => l.id === listId);
+      
+      if (list) {
+        targetListInfo.classList.remove('hidden');
+        document.getElementById('list-info-content').innerHTML = `
+          <div class="flex justify-between items-center">
+            <div>
+              <div class="font-medium">${list.name}</div>
+              <div class="text-sm text-gray-500">${list.contacts_count} contacts</div>
+            </div>
+            <div class="text-right">
+              <div class="text-sm text-gray-500">Estimated reach</div>
+              <div class="font-medium text-lg">${list.contacts_count}</div>
+            </div>
+          </div>
+        `;
+      } else {
+        targetListInfo.classList.add('hidden');
+      }
+    });
+  }
+});
+</script>

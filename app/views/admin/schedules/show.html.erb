@@ -1,0 +1,315 @@
+<% content_for :title, @schedule.name %>
+
+<div class="admin-content">
+  <div class="admin-header">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="admin-title"><%= @schedule.name %></h1>
+        <p class="admin-subtitle">
+          <span class="badge badge-<%= @schedule.state == 'completed' ? 'success' : @schedule.state == 'failed' ? 'danger' : 'primary' %>">
+            <%= @schedule.status_label %>
+          </span>
+          <span class="text-gray-500 ml-2">
+            <% if @schedule.send_at %>
+              <%= @schedule.send_at > Time.current ? "Scheduled for" : "Sent" %> 
+              <%= @schedule.send_at.strftime("%B %d, %Y at %I:%M %p") %>
+            <% else %>
+              Draft
+            <% end %>
+          </span>
+        </p>
+      </div>
+      <div class="flex space-x-3">
+        <%= link_to admin_schedules_path, class: "btn btn-secondary" do %>
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          Back to Schedules
+        <% end %>
+        
+        <% if @schedule.can_be_edited? %>
+          <%= link_to edit_admin_schedule_path(@schedule), class: "btn btn-primary" do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            Edit Schedule
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Content -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Schedule Details -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="text-lg font-semibold">Schedule Information</h3>
+        </div>
+        <div class="card-body">
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Name</dt>
+              <dd class="text-sm text-gray-900"><%= @schedule.name %></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Status</dt>
+              <dd class="text-sm text-gray-900">
+                <span class="badge badge-<%= @schedule.state == 'completed' ? 'success' : @schedule.state == 'failed' ? 'danger' : 'primary' %>">
+                  <%= @schedule.status_label %>
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Template</dt>
+              <dd class="text-sm text-gray-900">
+                <%= link_to @schedule.template.name, admin_template_path(@schedule.template), class: "text-blue-600 hover:text-blue-800" %>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Provider</dt>
+              <dd class="text-sm text-gray-900">
+                <% if @schedule.provider %>
+                  <%= link_to @schedule.provider.name, admin_provider_path(@schedule.provider), class: "text-blue-600 hover:text-blue-800" %>
+                <% else %>
+                  <%= @schedule.template.default_provider %>
+                <% end %>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Target</dt>
+              <dd class="text-sm text-gray-900">
+                <%= @schedule.target_name %>
+                <% if @schedule.target_contacts_count > 0 %>
+                  <span class="text-gray-500">(<%= @schedule.target_contacts_count %> contacts)</span>
+                <% end %>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Scheduled For</dt>
+              <dd class="text-sm text-gray-900">
+                <% if @schedule.send_at %>
+                  <%= @schedule.send_at.strftime("%B %d, %Y at %I:%M %p") %>
+                <% else %>
+                  <span class="text-gray-500">Not scheduled</span>
+                <% end %>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Progress & Statistics -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="text-lg font-semibold">Campaign Statistics</h3>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-gray-900"><%= @stats[:total_messages] %></div>
+              <div class="text-sm text-gray-500">Total Messages</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-green-600"><%= @stats[:delivered_messages] %></div>
+              <div class="text-sm text-gray-500">Delivered</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-blue-600"><%= @stats[:sent_messages] %></div>
+              <div class="text-sm text-gray-500">Sent</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-red-600"><%= @stats[:failed_messages] %></div>
+              <div class="text-sm text-gray-500">Failed</div>
+            </div>
+          </div>
+          
+          <% if @stats[:total_messages] > 0 %>
+            <div class="space-y-2">
+              <div class="flex justify-between text-sm">
+                <span>Progress</span>
+                <span><%= @schedule.progress_percentage %>%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-600 h-2 rounded-full" style="width: <%= @schedule.progress_percentage %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Recent Messages -->
+      <div class="card">
+        <div class="card-header">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-semibold">Recent Messages</h3>
+            <% if @messages.any? %>
+              <%= link_to "View All Messages", admin_messages_path(schedule_id: @schedule.id), class: "btn btn-sm btn-secondary" %>
+            <% end %>
+          </div>
+        </div>
+        <div class="card-body">
+          <% if @messages.any? %>
+            <div class="overflow-x-auto">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Recipient</th>
+                    <th>Status</th>
+                    <th>Sent At</th>
+                    <th>Last Event</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @messages.each do |message| %>
+                    <tr>
+                      <td>
+                        <div>
+                          <div class="font-medium"><%= message.contact&.display_name || message.recipient_email %></div>
+                          <div class="text-sm text-gray-500"><%= message.recipient_email %></div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge badge-<%= message.status == 'delivered' ? 'success' : message.status == 'failed' ? 'danger' : 'primary' %> badge-sm">
+                          <%= message.status&.humanize || 'Unknown' %>
+                        </span>
+                      </td>
+                      <td class="text-sm text-gray-500">
+                        <%= message.sent_at ? time_ago_in_words(message.sent_at) + " ago" : '-' %>
+                      </td>
+                      <td class="text-sm text-gray-500">
+                        <% if message.message_events.any? %>
+                          <%= message.message_events.last.event_type.humanize %>
+                        <% else %>
+                          -
+                        <% end %>
+                      </td>
+                      <td>
+                        <%= link_to "View", admin_message_path(message), class: "btn btn-xs btn-secondary" %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center py-8">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.013 8.013 0 01-7-4c0-4.418 3.582-8 8-8s8 3.582 8 8z"/>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">No messages yet</h3>
+              <p class="mt-1 text-sm text-gray-500">Messages will appear here once the campaign is sent.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+      <!-- Quick Actions -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="text-lg font-semibold">Actions</h3>
+        </div>
+        <div class="card-body space-y-3">
+          <% if @schedule.can_be_started? %>
+          <%# binding.pry %>
+            <%= link_to send_now_admin_schedule_path(@schedule), method: :post, 
+                confirm: "Are you sure you want to send this campaign now?", 
+                class: "btn btn-success w-full" do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+              </svg>
+              Send Now
+            <% end %>
+          <% end %>
+          
+          <% if @schedule.can_be_paused? %>
+            <%= link_to admin_schedule_pause_path(@schedule), method: :post, 
+                confirm: "Are you sure you want to pause this campaign?", 
+                class: "btn btn-warning w-full" do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Pause Campaign
+            <% end %>
+          <% end %>
+          
+          <% if @schedule.can_be_edited? %>
+            <%= link_to edit_admin_schedule_path(@schedule), class: "btn btn-primary w-full" do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              Edit Schedule
+            <% end %>
+          <% end %>
+          
+          <% if @schedule.can_be_deleted? %>
+            <%= link_to admin_schedule_path(@schedule), method: :delete, 
+                confirm: "Are you sure you want to delete this schedule? This action cannot be undone.", 
+                class: "btn btn-danger w-full" do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+              Delete Schedule
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Template Information -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="text-lg font-semibold">Template Details</h3>
+        </div>
+        <div class="card-body">
+          <div class="space-y-3">
+            <div>
+              <h4 class="text-sm font-medium text-gray-500">Template Name</h4>
+              <p class="text-sm text-gray-900">
+                <%= link_to @schedule.template.name, admin_template_path(@schedule.template), class: "text-blue-600 hover:text-blue-800" %>
+              </p>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-gray-500">Purpose</h4>
+              <p class="text-sm text-gray-900"><%= @schedule.template.purpose.humanize %></p>
+            </div>
+            <% if @schedule.template.subject.present? %>
+              <div>
+                <h4 class="text-sm font-medium text-gray-500">Subject Line</h4>
+                <p class="text-sm text-gray-900"><%= @schedule.template.subject %></p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Events -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="text-lg font-semibold">Recent Events</h3>
+        </div>
+        <div class="card-body">
+          <% if @recent_events.any? %>
+            <div class="space-y-3">
+              <% @recent_events.each do |event| %>
+                <div class="flex justify-between items-start text-sm">
+                  <div>
+                    <p class="font-medium text-gray-900"><%= event.event_type.humanize %></p>
+                    <p class="text-gray-500"><%= event.message.recipient_email %></p>
+                  </div>
+                  <p class="text-gray-500 text-xs"><%= time_ago_in_words(event.created_at) %> ago</p>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-sm text-gray-500 text-center py-4">No events yet</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
