@@ -1,0 +1,10 @@
+<div class="mb-8">
+  <div class="flex items-center mb-4">
+    <%= link_to "← Back to Providers", admin_providers_path, class: "text-primary-600 hover:text-primary-700 mr-4" %>
+    <%= link_to "View Provider", admin_provider_path(@provider), class: "text-gray-600 hover:text-gray-700" %>
+  </div>
+  <h1 class="text-3xl font-bold text-gray-900">Edit Provider</h1>
+  <p class="text-gray-600 mt-2">Update settings for <strong><%= @provider.name %></strong>.</p>
+</div>
+
+<%= render 'form', provider: @provider %>

@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: 1
+  channel: 1
+  credentials: MyText
+  settings: 
+  active: false
+
+two:
+  name: 1
+  channel: 1
+  credentials: MyText
+  settings: 
+  active: false

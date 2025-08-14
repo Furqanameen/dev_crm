@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_11_231433) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_13_005419) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -140,6 +140,90 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_11_231433) do
     t.index ["user_id"], name: "index_lists_on_user_id"
   end
 
+  create_table "message_events", force: :cascade do |t|
+    t.bigint "message_id", null: false
+    t.integer "event_type", null: false
+    t.datetime "occurred_at", null: false
+    t.jsonb "raw", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_type"], name: "index_message_events_on_event_type"
+    t.index ["message_id"], name: "index_message_events_on_message_id"
+    t.index ["occurred_at"], name: "index_message_events_on_occurred_at"
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.bigint "schedule_id", null: false
+    t.bigint "contact_id", null: false
+    t.integer "channel", null: false
+    t.bigint "provider_id", null: false
+    t.string "provider_message_id"
+    t.integer "status", default: 0
+    t.integer "attempts", default: 0
+    t.text "last_error"
+    t.datetime "queued_at"
+    t.datetime "sent_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contact_id"], name: "index_messages_on_contact_id"
+    t.index ["provider_id", "provider_message_id"], name: "index_messages_on_provider_id_and_provider_message_id"
+    t.index ["provider_id"], name: "index_messages_on_provider_id"
+    t.index ["queued_at"], name: "index_messages_on_queued_at"
+    t.index ["schedule_id", "contact_id"], name: "index_messages_on_schedule_id_and_contact_id", unique: true
+    t.index ["schedule_id"], name: "index_messages_on_schedule_id"
+    t.index ["status"], name: "index_messages_on_status"
+  end
+
+  create_table "providers", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "channel", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "status", default: 0, null: false
+    t.text "description"
+    t.jsonb "configuration", default: {}
+    t.index ["channel", "name"], name: "index_providers_on_channel_and_name"
+    t.index ["status"], name: "index_providers_on_status"
+  end
+
+  create_table "schedules", force: :cascade do |t|
+    t.bigint "template_id", null: false
+    t.integer "channel", null: false
+    t.string "target_type", null: false
+    t.bigint "target_id", null: false
+    t.bigint "provider_id"
+    t.datetime "send_at"
+    t.integer "state", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "name"
+    t.string "timezone", default: "UTC"
+    t.jsonb "merge_data", default: {}
+    t.jsonb "meta", default: {}
+    t.index ["channel"], name: "index_schedules_on_channel"
+    t.index ["provider_id"], name: "index_schedules_on_provider_id"
+    t.index ["send_at"], name: "index_schedules_on_send_at"
+    t.index ["state"], name: "index_schedules_on_state"
+    t.index ["target_type", "target_id"], name: "index_schedules_on_target_type_and_target_id"
+    t.index ["template_id"], name: "index_schedules_on_template_id"
+  end
+
+  create_table "templates", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "purpose", null: false
+    t.string "default_provider", null: false
+    t.string "external_template_id"
+    t.string "subject"
+    t.text "html_body"
+    t.text "text_body"
+    t.jsonb "merge_schema", default: {}
+    t.jsonb "meta", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["default_provider"], name: "index_templates_on_default_provider"
+    t.index ["purpose"], name: "index_templates_on_purpose"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -171,4 +255,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_11_231433) do
   add_foreign_key "contact_list_memberships", "lists"
   add_foreign_key "import_batches", "users"
   add_foreign_key "lists", "users"
+  add_foreign_key "message_events", "messages"
+  add_foreign_key "messages", "contacts"
+  add_foreign_key "messages", "providers"
+  add_foreign_key "messages", "schedules"
+  add_foreign_key "schedules", "providers"
+  add_foreign_key "schedules", "templates"
 end

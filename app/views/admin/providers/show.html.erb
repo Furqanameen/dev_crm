@@ -1,0 +1,171 @@
+<div class="mb-8">
+  <div class="flex justify-between items-start">
+    <div>
+      <div class="flex items-center mb-4">
+        <%= link_to "← Back to Providers", admin_providers_path, class: "text-primary-600 hover:text-primary-700 mr-4" %>
+        <span class="badge <%= @provider.active? ? 'badge-success' : 'badge-danger' %>">
+          <%= @provider.status.humanize %>
+        </span>
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900"><%= @provider.name %></h1>
+      <p class="text-gray-600 mt-2"><%= @provider.channel.humanize %> Provider</p>
+    </div>
+    <div class="flex gap-3">
+      <%= link_to "Edit", edit_admin_provider_path(@provider), class: "btn btn-secondary" %>
+      <%= link_to "Delete", admin_provider_path(@provider), method: :delete, 
+          confirm: "Are you sure? This action cannot be undone.", 
+          class: "btn btn-danger" %>
+    </div>
+  </div>
+</div>
+
+<!-- Provider Details -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+  <!-- Main Info -->
+  <div class="lg:col-span-2">
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Provider Information</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="label">Name</label>
+          <p class="text-gray-900 font-medium"><%= @provider.name %></p>
+        </div>
+        
+        <div>
+          <label class="label">Channel</label>
+          <div class="flex items-center">
+            <% case @provider.channel %>
+            <% when 'email' %>
+              <div class="icon icon-mail w-5 h-5 text-primary-600 mr-2"></div>
+            <% when 'sms' %>
+              <div class="icon icon-message-square w-5 h-5 text-primary-600 mr-2"></div>
+            <% when 'whatsapp' %>
+              <div class="icon icon-message-circle w-5 h-5 text-primary-600 mr-2"></div>
+            <% end %>
+            <span class="font-medium"><%= @provider.channel.humanize %></span>
+          </div>
+        </div>
+        
+        <div>
+          <label class="label">Status</label>
+          <span class="badge <%= @provider.active? ? 'badge-success' : 'badge-danger' %>">
+            <%= @provider.status.humanize %>
+          </span>
+        </div>
+        
+        <div>
+          <label class="label">Created</label>
+          <p class="text-gray-700"><%= @provider.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+        </div>
+      </div>
+      
+      <% if @provider.description.present? %>
+        <div class="mt-6">
+          <label class="label">Description</label>
+          <p class="text-gray-700"><%= @provider.description %></p>
+        </div>
+      <% end %>
+      
+      <!-- Configuration (masked for security) -->
+      <div class="mt-6">
+        <label class="label">Configuration</label>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <% if @provider.configuration.present? %>
+            <% @provider.configuration.each do |key, value| %>
+              <div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+                <span class="font-medium text-gray-700"><%= key.humanize %></span>
+                <span class="text-gray-500 font-mono">
+                  <%= key.to_s.downcase.include?('key') || key.to_s.downcase.include?('secret') || key.to_s.downcase.include?('password') ? '••••••••' : value %>
+                </span>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-gray-500 text-sm">No configuration data available.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Stats Sidebar -->
+  <div>
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Statistics</h2>
+      
+      <div class="space-y-4">
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600">Total Schedules</span>
+          <span class="font-semibold text-gray-900"><%= @stats[:total_schedules] %></span>
+        </div>
+        
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600">Active Schedules</span>
+          <span class="font-semibold text-green-600"><%= @stats[:active_schedules] %></span>
+        </div>
+        
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600">Total Messages</span>
+          <span class="font-semibold text-gray-900"><%= @stats[:total_messages] %></span>
+        </div>
+        
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600">Messages Sent</span>
+          <span class="font-semibold text-blue-600"><%= @stats[:sent_messages] %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Schedules -->
+<div class="bg-white rounded-lg shadow">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <div class="flex justify-between items-center">
+      <h2 class="text-lg font-semibold text-gray-900">Recent Schedules</h2>
+      <%= link_to "View All", admin_schedules_path(provider_id: @provider.id), class: "text-primary-600 hover:text-primary-700 text-sm font-medium" %>
+    </div>
+  </div>
+  
+  <% if @recent_schedules.any? %>
+    <div class="divide-y divide-gray-200">
+      <% @recent_schedules.each do |schedule| %>
+        <div class="px-6 py-4 hover:bg-gray-50">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="font-medium text-gray-900">
+                <%= link_to schedule.name, admin_schedule_path(schedule), class: "hover:text-primary-600" %>
+              </h3>
+              <p class="text-sm text-gray-500 mt-1">
+                <%= schedule.template.name %> • 
+                <%= pluralize(schedule.messages.count, 'message') %>
+              </p>
+            </div>
+            <div class="text-right">
+              <span class="badge <%= 
+                case schedule.state
+                when 'draft' then 'badge-secondary'
+                when 'scheduled' then 'badge-warning'
+                when 'sending' then 'badge-primary'
+                when 'completed' then 'badge-success'
+                when 'failed' then 'badge-danger'
+                else 'badge-secondary'
+                end %>">
+                <%= schedule.state.humanize %>
+              </span>
+              <p class="text-xs text-gray-500 mt-1">
+                <%= time_ago_in_words(schedule.created_at) %> ago
+              </p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="px-6 py-12 text-center">
+      <div class="icon icon-calendar text-gray-400 mx-auto mb-4" style="font-size: 2rem;"></div>
+      <h3 class="text-sm font-medium text-gray-900 mb-2">No schedules yet</h3>
+      <p class="text-gray-500 text-sm">Schedules using this provider will appear here.</p>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,125 @@
+<% content_for :title, "New Template" %>
+
+<div class="admin-content">
+  <div class="admin-header">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="admin-title">Create New Template</h1>
+        <p class="admin-subtitle">Design a new message template for your campaigns</p>
+      </div>
+      <%= link_to admin_templates_path, class: "btn btn-secondary" do %>
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        Back to Templates
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <%= form_with model: [:admin, @template], local: true, class: "space-y-6" do |form| %>
+      <% if @template.errors.any? %>
+        <div class="alert alert-danger">
+          <h4><%= pluralize(@template.errors.count, "error") %> prohibited this template from being saved:</h4>
+          <ul class="mt-2">
+            <% @template.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Basic Information -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">Basic Information</h3>
+          
+          <div class="form-group">
+            <%= form.label :name, class: "form-label" %>
+            <%= form.text_field :name, class: "form-control", placeholder: "e.g., Welcome Email Template" %>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :purpose, class: "form-label" %>
+            <%= form.select :purpose, 
+                options_for_select(::Template.purposes.map { |key, value| [key.humanize, key] }, @template.purpose),
+                { prompt: "Select template purpose" },
+                { class: "form-control" } %>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :default_provider, "Default Provider", class: "form-label" %>
+            <% if @providers.any? %>
+              <%= form.select :default_provider, 
+                  grouped_options_for_select(
+                    @providers.map { |channel, providers| 
+                      [channel.humanize, providers.map { |p| [p.name, p.name] }] 
+                    }, @template.default_provider
+                  ),
+                  { prompt: "Select default provider" },
+                  { class: "form-control" } %>
+            <% else %>
+              <p class="text-sm text-gray-500">No providers available. <%= link_to "Create a provider", admin_providers_path, class: "text-blue-600 hover:text-blue-800" %> first.</p>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Provider Integration -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">Provider Integration</h3>
+          
+          <div class="form-group">
+            <%= form.label :external_template_id, "External Template ID", class: "form-label" %>
+            <%= form.text_field :external_template_id, class: "form-control", placeholder: "Provider-specific template ID (optional)" %>
+            <p class="form-help">If this template is hosted by your provider (e.g., Mailgun, SendGrid), enter the template ID</p>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :description, class: "form-label" %>
+            <%= form.text_area :description, rows: 3, class: "form-control", placeholder: "Brief description of this template's purpose" %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Section -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">Template Content</h3>
+        <p class="text-sm text-gray-600">Provide at least one form of content (HTML, plain text, or use external template)</p>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="form-group">
+            <%= form.label :subject_line, class: "form-label" %>
+            <%= form.text_field :subject_line, class: "form-control", placeholder: "Email subject line" %>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :preheader_text, class: "form-label" %>
+            <%= form.text_field :preheader_text, class: "form-control", placeholder: "Email preheader text (optional)" %>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <%= form.label :html_content, "HTML Content", class: "form-label" %>
+          <%= form.text_area :html_content, rows: 8, class: "form-control", placeholder: "HTML version of your email template" %>
+        </div>
+
+        <div class="form-group">
+          <%= form.label :text_content, "Plain Text Content", class: "form-label" %>
+          <%= form.text_area :text_content, rows: 6, class: "form-control", placeholder: "Plain text version of your email template" %>
+        </div>
+
+        <div class="form-group">
+          <%= form.label :sms_content, "SMS Content", class: "form-label" %>
+          <%= form.text_area :sms_content, rows: 3, class: "form-control", placeholder: "SMS version of your message (160 characters recommended)" %>
+          <p class="form-help">Keep SMS messages concise. Long messages may be split into multiple parts.</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+        <%= link_to "Cancel", admin_templates_path, class: "btn btn-secondary" %>
+        <%= form.submit "Create Template", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

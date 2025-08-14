@@ -1,0 +1,160 @@
+<%= form_with model: [:admin, provider], local: true, class: "space-y-6" do |form| %>
+  <% if provider.errors.any? %>
+    <div class="alert alert-danger">
+      <h4 class="text-lg font-medium text-red-800 mb-2">
+        <%= pluralize(provider.errors.count, "error") %> prohibited this provider from being saved:
+      </h4>
+      <ul class="list-disc list-inside text-red-700">
+        <% provider.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- Basic Information -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <%= form.label :name, class: "label" %>
+        <%= form.text_field :name, class: "form-input", placeholder: "e.g., Mailgun Production" %>
+      </div>
+      
+      <div>
+        <%= form.label :channel, class: "label" %>
+        <%= form.select :channel, 
+            options_for_select([
+              ['Email', 'email'],
+              ['SMS', 'sms'],
+              ['WhatsApp', 'whatsapp']
+            ], provider.channel), 
+            { prompt: 'Select a channel' }, 
+            { class: "form-select" } %>
+      </div>
+      
+      <div class="md:col-span-2">
+        <%= form.label :description, class: "label" %>
+        <%= form.text_area :description, class: "form-textarea", rows: 3, 
+            placeholder: "Optional description of this provider..." %>
+      </div>
+      
+      <div>
+        <%= form.label :status, class: "label" %>
+        <%= form.select :status, 
+            options_for_select([
+              ['Active', 'active'],
+              ['Inactive', 'inactive']
+            ], provider.status), 
+            {}, 
+            { class: "form-select" } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configuration -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Configuration</h2>
+    <p class="text-gray-600 text-sm mb-6">
+      Provider-specific settings and API credentials. These will be stored securely.
+    </p>
+    
+    <div id="configuration-fields" class="space-y-4">
+      <% if provider.configuration.present? %>
+        <% provider.configuration.each_with_index do |(key, value), index| %>
+          <div class="configuration-field grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <%= text_field_tag "provider[configuration_keys][]", key, 
+                  class: "form-input", 
+                  placeholder: "Configuration key (e.g., api_key)" %>
+            </div>
+            <div class="flex gap-2">
+              <%= text_field_tag "provider[configuration_values][]", value, 
+                  class: "form-input flex-1", 
+                  placeholder: "Configuration value",
+                  type: (key.to_s.downcase.include?('key') || key.to_s.downcase.include?('secret') || key.to_s.downcase.include?('password') ? 'password' : 'text') %>
+              <button type="button" class="btn btn-ghost btn-sm remove-config-field">
+                <div class="icon icon-x w-4 h-4"></div>
+              </button>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="configuration-field grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <%= text_field_tag "provider[configuration_keys][]", "", 
+                class: "form-input", 
+                placeholder: "Configuration key (e.g., api_key)" %>
+          </div>
+          <div class="flex gap-2">
+            <%= text_field_tag "provider[configuration_values][]", "", 
+                class: "form-input flex-1", 
+                placeholder: "Configuration value" %>
+            <button type="button" class="btn btn-ghost btn-sm remove-config-field">
+              <div class="icon icon-x w-4 h-4"></div>
+            </button>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <button type="button" id="add-config-field" class="btn btn-ghost btn-sm mt-4">
+      <div class="icon icon-plus w-4 h-4 mr-2"></div>
+      Add Configuration Field
+    </button>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex justify-end gap-3">
+    <%= link_to "Cancel", admin_providers_path, class: "btn btn-secondary" %>
+    <%= form.submit provider.persisted? ? "Update Provider" : "Create Provider", 
+        class: "btn btn-primary" %>
+  </div>
+<% end %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const configContainer = document.getElementById('configuration-fields');
+  const addButton = document.getElementById('add-config-field');
+  
+  // Add new configuration field
+  addButton.addEventListener('click', function() {
+    const fieldHTML = `
+      <div class="configuration-field grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <input type="text" name="provider[configuration_keys][]" class="form-input" placeholder="Configuration key (e.g., api_key)">
+        </div>
+        <div class="flex gap-2">
+          <input type="text" name="provider[configuration_values][]" class="form-input flex-1" placeholder="Configuration value">
+          <button type="button" class="btn btn-ghost btn-sm remove-config-field">
+            <div class="icon icon-x w-4 h-4"></div>
+          </button>
+        </div>
+      </div>
+    `;
+    configContainer.insertAdjacentHTML('beforeend', fieldHTML);
+  });
+  
+  // Remove configuration field
+  configContainer.addEventListener('click', function(e) {
+    if (e.target.closest('.remove-config-field')) {
+      e.target.closest('.configuration-field').remove();
+    }
+  });
+  
+  // Auto-detect password fields
+  configContainer.addEventListener('input', function(e) {
+    if (e.target.name === 'provider[configuration_keys][]') {
+      const key = e.target.value.toLowerCase();
+      const valueField = e.target.closest('.configuration-field').querySelector('input[name="provider[configuration_values][]"]');
+      
+      if (key.includes('key') || key.includes('secret') || key.includes('password') || key.includes('token')) {
+        valueField.type = 'password';
+      } else {
+        valueField.type = 'text';
+      }
+    }
+  });
+});
+</script>

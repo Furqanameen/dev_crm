@@ -39,16 +39,54 @@ A comprehensive CRM application built with Ruby on Rails 8.x, featuring CSV impo
 - User activity monitoring
 - Audit logging for compliance
 
+### 📧 Campaign Management System
+- **Multi-channel campaigns**: Email, SMS, and WhatsApp support
+- **Provider management**: Secure configuration for service providers (SendGrid, Twilio, etc.)
+- **Template system**: Reusable campaign templates with merge variables
+- **Campaign scheduling**: Advanced scheduling with timezone support
+- **Message tracking**: Complete delivery status monitoring
+- **Webhook integration**: Real-time event tracking (delivered, opened, clicked, bounced)
+- **Campaign lifecycle**: Draft → Scheduled → Sending → Completed/Failed
+
+### ✅ Enhanced Navigation Structure
+```
+Admin Dashboard:
+├── 📊 Dashboard (Overview & Statistics)
+├── 📧 Campaigns
+│   ├── Providers (Email/SMS/WhatsApp service configuration)
+│   ├── Templates (Campaign templates with merge variables)
+│   └── Schedules (Campaign execution & management)
+├── 📋 Logs & Events  
+│   ├── Messages (Delivery tracking & status monitoring)
+│   └── Webhooks (Real-time event monitoring)
+├── 👥 Contacts
+│   ├── Contacts (Individual contact management)
+│   ├── Contact Lists (Segmentation & targeting)
+│   └── Imports (CSV import system)
+└── 🔧 Administration
+    └── Users (User management - Super Admin only)
+```
+
+### 🚀 Campaign Features
+- **Provider Security**: Encrypted API credentials with masked display
+- **Advanced Filtering**: Filter by channel, status, provider, date ranges
+- **Real-time Statistics**: Live delivery rates, open rates, click tracking
+- **Campaign Actions**: Materialize, Send Now, Pause, Resume operations
+- **Professional UI**: Modern cards, responsive tables, comprehensive dashboards
+- **Audit Trail**: Complete tracking of all campaign activities
+
 ## Technical Stack
 
 - **Ruby**: 3.3.1
-- **Rails**: 8.x
+- **Rails**: 8.x (with modern enum syntax)
 - **Database**: PostgreSQL with advanced features (citext, arrays, JSONB)
 - **Background Jobs**: Sidekiq
 - **Authentication**: Devise
 - **Authorization**: Pundit
+- **Campaign Management**: Multi-channel messaging system (Email/SMS/WhatsApp)
 - **Frontend**: Tailwind CSS, Hotwire (Turbo + Stimulus)
 - **File Uploads**: Active Storage
+- **Pagination**: Kaminari
 - **Email**: Action Mailer with letter_opener_web (development)
 
 ## Setup Instructions
@@ -149,7 +187,37 @@ After running `rails db:seed`, check the console output for generated passwords:
 - **Edit Contacts**: Update contact information and manage tags
 - **Export Contacts**: Download contact lists as CSV
 
-#### 3. User Management (Super Admin Only)
+#### 3. Campaign Management
+
+**Provider Configuration:**
+- Navigate to Admin → Campaigns → Providers
+- Add service providers (SendGrid, Twilio, WhatsApp Business API)
+- Configure API credentials securely (credentials are masked in UI)
+- Set provider status (Active/Inactive/Error)
+
+**Template Creation:**
+- Go to Admin → Campaigns → Templates
+- Create reusable campaign templates with merge variables
+- Support for HTML/Text email templates and SMS/WhatsApp messages
+- Link templates to specific providers or use default
+
+**Campaign Scheduling:**
+- Navigate to Admin → Campaigns → Schedules
+- Create new campaigns targeting contact lists
+- Set send times with timezone support
+- Monitor campaign lifecycle: Draft → Scheduled → Sending → Completed
+
+**Message Tracking:**
+- View all messages in Admin → Logs & Events → Messages
+- Track delivery status: Queued → Sent → Delivered/Failed/Bounced
+- Filter by status, channel, schedule, and date ranges
+
+**Webhook Monitoring:**
+- Monitor real-time events in Admin → Logs & Events → Webhooks
+- Track opens, clicks, bounces, and delivery confirmations
+- View detailed event data and timestamps
+
+#### 4. User Management (Super Admin Only)
 
 - **Manage Admin Users**: Create, edit, and deactivate admin accounts
 - **View Audit Logs**: Track all user actions for compliance
@@ -186,6 +254,12 @@ jane@techcorp.com,,Jane Smith,TechCorp Inc,CTO,USA,San Francisco,LinkedIn,"enter
 | Access admin panel | ❌ | ✅ | ✅ |
 | Manage contacts | ❌ | ✅ | ✅ |
 | Import CSV | ❌ | ✅ | ✅ |
+| Campaign management | ❌ | ✅ | ✅ |
+| Provider configuration | ❌ | ✅ | ✅ |
+| Template creation | ❌ | ✅ | ✅ |
+| Schedule campaigns | ❌ | ✅ | ✅ |
+| View message logs | ❌ | ✅ | ✅ |
+| Monitor webhooks | ❌ | ✅ | ✅ |
 | View own imports | ❌ | ✅ | ✅ |
 | View all imports | ❌ | ❌ | ✅ |
 | Manage users | ❌ | ❌ | ✅ |

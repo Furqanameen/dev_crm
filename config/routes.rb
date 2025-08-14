@@ -11,6 +11,23 @@ Rails.application.routes.draw do
   namespace :admin do
     root 'dashboard#index'
     
+    # Campaign Management
+    resources :providers
+    resources :templates
+    resources :schedules do
+      member do
+        post :materialize
+        post :send_now
+        post :pause
+        post :resume
+      end
+    end
+    
+    # Messages and Events (Logs)
+    resources :messages, only: [:index, :show]
+    resources :message_events, only: [:index, :show]
+    
+    # Contact Management
     resources :lists do
       resources :contact_list_memberships, only: [:create, :destroy]
     end

@@ -30,6 +30,9 @@ gem "sidekiq"
 # CSV Processing
 gem "csv"
 
+# Pagination
+gem "kaminari"
+
 # Phone number validation and normalization
 gem "phonelib"
 

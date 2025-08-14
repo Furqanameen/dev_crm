@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  purpose: 1
+  default_provider: MyString
+  external_template_id: MyString
+  subject: MyString
+  html_body: MyText
+  text_body: MyText
+  merge_schema: 
+  meta: 
+
+two:
+  name: MyString
+  purpose: 1
+  default_provider: MyString
+  external_template_id: MyString
+  subject: MyString
+  html_body: MyText
+  text_body: MyText
+  merge_schema: 
+  meta: 

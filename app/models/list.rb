@@ -2,6 +2,7 @@ class List < ApplicationRecord
   belongs_to :user
   has_many :contact_list_memberships, dependent: :destroy
   has_many :contacts, through: :contact_list_memberships
+  has_many :schedules, as: :target, dependent: :destroy
   
   # Validations
   validates :name, presence: true, uniqueness: { scope: :user_id }
@@ -18,6 +19,10 @@ class List < ApplicationRecord
   
   def display_name
     "#{name} (#{contacts_count})"
+  end
+  
+  def campaign_ready?
+    contacts_count > 0 && is_active?
   end
   
   private

@@ -1,0 +1,9 @@
+<div class="mb-8">
+  <div class="flex items-center mb-4">
+    <%= link_to "← Back to Providers", admin_providers_path, class: "text-primary-600 hover:text-primary-700" %>
+  </div>
+  <h1 class="text-3xl font-bold text-gray-900">Add New Provider</h1>
+  <p class="text-gray-600 mt-2">Configure a new service provider for sending campaigns.</p>
+</div>
+
+<%= render 'form', provider: @provider %>
