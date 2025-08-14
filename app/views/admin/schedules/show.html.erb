@@ -96,12 +96,6 @@
                 <% end %>
               </dd>
             </div>
-            <% if @schedule.description.present? %>
-              <div class="sm:col-span-2">
-                <dt class="text-sm font-medium text-gray-500">Description</dt>
-                <dd class="text-sm text-gray-900"><%= simple_format(@schedule.description) %></dd>
-              </div>
-            <% end %>
           </dl>
         </div>
       </div>
@@ -222,7 +216,8 @@
         </div>
         <div class="card-body space-y-3">
           <% if @schedule.can_be_started? %>
-            <%= link_to admin_schedule_send_now_path(@schedule), method: :post, 
+          <%# binding.pry %>
+            <%= link_to send_now_admin_schedule_path(@schedule), method: :post, 
                 confirm: "Are you sure you want to send this campaign now?", 
                 class: "btn btn-success w-full" do %>
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

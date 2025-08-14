@@ -55,7 +55,7 @@
             </div>
             <div class="sm:col-span-2">
               <dt class="text-sm font-medium text-gray-500">Description</dt>
-              <dd class="text-sm text-gray-900"><%= @template.description.presence || 'No description provided' %></dd>
+              <dd class="text-sm text-gray-900"><%#= @template&.description.presence || 'No description provided' %></dd>
             </div>
           </dl>
         </div>
@@ -67,10 +67,10 @@
           <h3 class="text-lg font-semibold">Content Preview</h3>
         </div>
         <div class="card-body">
-          <% if @template.subject_line.present? %>
+          <% if @template.subject.present? %>
             <div class="mb-4">
-              <h4 class="text-sm font-medium text-gray-500 mb-1">Subject Line</h4>
-              <p class="text-sm text-gray-900 bg-gray-50 p-2 rounded"><%= @template.subject_line %></p>
+              <h4 class="text-sm font-medium text-gray-500 mb-1">Subject(Email Heading)</h4>
+              <p class="text-sm text-gray-900 bg-gray-50 p-2 rounded"><%= @template.subject %></p>
             </div>
           <% end %>
           

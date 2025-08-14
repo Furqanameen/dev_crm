@@ -270,7 +270,7 @@ if email_providers.any?
     name: 'Welcome Email Series - Day 1',
     purpose: :welcome,
     default_provider: email_providers.first.name,
-    subject_line: 'Welcome to DevCRM! Let\'s get you started 🚀',
+    subject: 'Welcome to DevCRM! Let\'s get you started 🚀',
     preheader_text: 'Your journey to better customer management begins now',
     html_content: %{
       <html>
@@ -323,7 +323,7 @@ if email_providers.any?
     name: 'Monthly Product Updates',
     purpose: :newsletter,
     default_provider: email_providers.first.name,
-    subject_line: 'DevCRM Updates: New Features & Success Stories 📈',
+    subject: 'DevCRM Updates: New Features & Success Stories 📈',
     preheader_text: 'See what\'s new this month and how customers are winning',
     html_content: %{
       <html>
@@ -387,7 +387,7 @@ if email_providers.any?
     name: 'Special Offer - 25% Off Premium',
     purpose: :promotional,
     default_provider: email_providers.first.name,
-    subject_line: '🎉 Limited Time: 25% OFF DevCRM Premium Features',
+    subject: '🎉 Limited Time: 25% OFF DevCRM Premium Features',
     preheader_text: 'Upgrade today and save big on advanced CRM features',
     html_content: %{
       <html>
