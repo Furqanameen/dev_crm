@@ -1,52 +1,222 @@
-# 🎯 Brevo Template Variables Reference
+# 🎯 Brevo Template Variables & Campaign Setup Guide
 
-## Your Template Variables (From Your DevHubSol Template)
+## 📋 **Quick Start for Team Members**
 
-Based on your actual Brevo template, these variables are now mapped:
+This guide will help you set up and run email campaigns using our CRM's Brevo integration. Follow these steps in order:
 
-### � **Main Template Variables**
-- `[Contact Person Name]` - Full name or "Dear Customer" as fallback
-- `[Company Name]` - Company name or "Your Company" as fallback  
-- `[Their Industry]` - Smart industry detection or "your industry" fallback
+### **1. Prerequisites** ✅
+- Admin access to the CRM dashboard
+- Your Brevo API key (contact system admin if needed)
+- Email templates created in your Brevo account
 
-### 👤 **Additional Contact Variables Available**
-- `[First Name]` - First name from full_name or "Dear" as fallback  
-- `[Last Name]` - Last name from full_name or "Customer" as fallback
-- `[Full Name]` - Complete full_name or "Dear Customer" as fallback
-- `[Display Name]` - Intelligent name (company_name for companies, full_name for individuals)
+---
 
-### � **Contact Details**
-- `[Email]` - Contact's email address
-- `[Phone]` - Mobile number
-- `[Mobile Number]` - Mobile number
+## 🔧 **Step 1: Create a Provider**
 
-### � **Business Information**  
-- `[Account Type]` - "Individual" or "Company"
-- `[Tags]` - Comma-separated contact tags
+1. **Navigate**: Admin Dashboard → **Providers** → **New Provider**
+2. **Fill out the form**:
+   - **Name**: "Brevo Email" (or your preferred name)
+   - **Type**: Select "Email"  
+   - **Active**: Check ✅
+   - **Configuration**: Click "Add Configuration" and set:
+     ```
+     api_key: your-brevo-api-key-here
+     sender_name: Your Company Name
+     sender_email: noreply@yourcompany.com
+     ```
+3. **Save**: Your provider is now ready!
 
-## 🧠 **Smart Industry Detection**
+---
 
-The `[Their Industry]` variable now intelligently detects industry from:
+## 📝 **Step 2: Create a Template**
 
-### **1. Contact Tags** (Priority 1)
-If contact has tags like: `["technology", "marketing"]`
-- Result: `[Their Industry]` = "technology"
+### **Option A: Use Brevo External Template** (Recommended)
+1. **Create template in Brevo dashboard first**
+2. **In CRM**: Admin Dashboard → **Templates** → **New Template**
+3. **Fill out**:
+   - **Name**: "Website Audit Outreach" (descriptive name)
+   - **Subject**: "Is Your Website Invisible to Your Ideal Customers?"
+   - **External Template ID**: Your Brevo template ID (e.g., "3", "4", etc.)
+   - Leave HTML/Text body empty when using external templates
 
-### **2. Company Name Analysis** (Priority 2)
-- "DevHub Software" → "technology"
-- "Smith & Partners Law" → "legal" 
-- "Downtown Restaurant" → "restaurant"
-- "HealthCare Clinic" → "healthcare"
-- "ABC Construction" → "construction"
-- "Marketing Pro Agency" → "marketing"
-- "Elite Consulting" → "consulting"
-- "City Bank Financial" → "financial"
+### **Option B: Local Template**
+1. **In CRM**: Admin Dashboard → **Templates** → **New Template** 
+2. **Fill out all fields including HTML and text body**
+3. **Leave External Template ID empty**
 
-### **3. Supported Industry Detection**
-- **Technology**: tech, software, digital, dev, app, web
-- **Legal**: law, legal, attorney, solicitor
-- **Restaurant**: restaurant, food, cafe, dining
-- **Healthcare**: medical, health, clinic, doctor
+---
+
+## � **Step 3: Set Up Contact Lists**
+
+1. **Import Contacts**: Admin Dashboard → **Contacts** → **Import CSV**
+2. **Create Lists**: Admin Dashboard → **Lists** → **New List**
+   - Add your imported contacts to lists
+   - Use descriptive names like "Tech Prospects", "Healthcare Leads"
+
+---
+
+## ⚡ **Step 4: Create a Campaign Schedule**
+
+1. **Navigate**: Admin Dashboard → **Schedules** → **New Schedule**
+2. **Campaign Details**:
+   - **Name**: "Q1 Website Audit Outreach"
+   - **Description**: Brief description of campaign goals
+   - **Template**: Select the template you created
+   - **Provider**: Select your Brevo provider
+   - **Target List**: Choose your contact list
+3. **Advanced Settings** (optional):
+   - **Merge Data**: Custom variables for this campaign
+   - **Send Time**: Leave blank for immediate sending
+4. **Save as Draft**: Campaign is created but not sent
+
+---
+
+## 🚀 **Step 5: Test & Launch Campaign**
+
+### **Testing** 🧪
+1. **Go to your campaign**: Admin Dashboard → **Schedules** → [Your Campaign]
+2. **Click "Test Send"**: Sends test email to verify everything works
+3. **Check logs**: Watch for any errors in the activity feed
+
+### **Launch** 🎯
+1. **Click "Send Now"**: Starts the campaign immediately
+2. **Or Schedule**: Set future send time if needed
+3. **Monitor Progress**: Watch the campaign dashboard for real-time stats
+
+---
+
+## 📈 **Step 6: Monitor Campaign Performance**
+
+### **Campaign Overview**
+- **Admin → Schedules → [Your Campaign]**: Overall campaign status
+- **Messages Tab**: See individual email delivery status
+- **Events Tab**: Track opens, clicks, bounces
+
+### **Individual Message Details**  
+- **Admin → Messages**: View all sent emails
+- **Click any message**: See detailed delivery timeline
+- **Admin → Message Events**: Track email engagement
+
+---
+
+## 🎨 **Template Variables Reference**
+
+### **Updated Variable Format** (Use these in Brevo templates):
+```html
+{{ params.contact_person_name }}  <!-- Contact's full name -->
+{{ params.company_name }}         <!-- Company name -->  
+{{ params.their_industry }}       <!-- Smart industry detection -->
+{{ params.first_name }}          <!-- First name only -->
+{{ params.last_name }}           <!-- Last name only -->
+{{ params.email }}               <!-- Email address -->
+{{ params.phone }}               <!-- Phone number -->
+```
+
+### **Smart Industry Detection** 🧠
+The system automatically detects industry from:
+
+1. **Contact Tags** (Priority 1): If tagged as "technology", "healthcare", etc.
+2. **Company Name** (Priority 2): "DevHub Software" → "technology"
+3. **Fallbacks**: "your industry" (individuals) / "business" (companies)
+
+**Supported Industries**: technology, legal, restaurant, healthcare, construction, marketing, consulting, education, automotive, real estate, financial, retail
+
+---
+
+## ✅ **Campaign Checklist**
+
+Before launching any campaign, verify:
+
+- [ ] **Provider Setup**: Brevo provider created and API key working
+- [ ] **Template Ready**: Template created (external Brevo template preferred)
+- [ ] **Contacts Imported**: Target contacts uploaded and in lists
+- [ ] **List Created**: Contact list set up and populated  
+- [ ] **Campaign Created**: Schedule created with proper template/provider/list
+- [ ] **Test Sent**: Test email sent and received successfully
+- [ ] **Variables Working**: Template variables populated correctly in test
+- [ ] **Webhook URL**: Set in Brevo dashboard for delivery tracking
+- [ ] **Monitoring Ready**: Know where to check campaign progress
+
+---
+
+## 🔍 **Template Example**
+
+### **In your Brevo template**:
+```html
+<h1>Is Your Website Invisible to Your Ideal Customers?</h1>
+<p>Hi {{ params.contact_person_name }},</p>
+
+<div class="intro-text">
+    While {{ params.company_name }} delivers exceptional 
+    {{ params.their_industry }} services, your website might be 
+    buried on page 2+ of Google...
+</div>
+
+<p>Best regards,<br>
+The Team</p>
+```
+
+### **Will render as**:
+```html
+<h1>Is Your Website Invisible to Your Ideal Customers?</h1>
+<p>Hi John Smith,</p>
+
+<div class="intro-text">
+    While Acme Tech Solutions delivers exceptional 
+    technology services, your website might be 
+    buried on page 2+ of Google...
+</div>
+
+<p>Best regards,<br>
+The Team</p>
+```
+
+---
+
+## 🚨 **Troubleshooting**
+
+### **Campaign Not Sending**
+- Check provider API key is correct
+- Verify template has external template ID or content
+- Ensure target list has contacts
+
+### **Variables Not Working**  
+- Use new format: `{{ params.variable_name }}`
+- Check contact data is complete (name, company, etc.)
+- Test with "Send Test Email" first
+
+### **No Delivery Status Updates**
+- Configure webhook URL in Brevo dashboard
+- URL: `https://your-ngrok-url.ngrok-free.app/webhooks/brevo`
+- Enable events: delivered, opened, clicked, bounced
+
+### **Getting Support**
+- Check Rails logs: `tail -f log/development.log`
+- Admin → Message Events: See webhook activity
+- Contact system admin with campaign ID and error details
+
+---
+
+## 💡 **Pro Tips for Better Campaigns**
+
+1. **Tag Contacts**: Add industry tags for better personalization
+2. **Test Everything**: Always send test emails before campaigns  
+3. **Monitor Early**: Check first 10-20 sends for issues
+4. **Segment Lists**: Create targeted lists for better engagement
+5. **Track Performance**: Use Admin → Messages and Events for insights
+6. **Optimal Timing**: Send during business hours for B2B contacts
+7. **Follow Up**: Create follow-up campaigns based on engagement
+
+---
+
+## 📞 **Need Help?**
+
+- **System Admin**: For API keys, webhooks, technical issues
+- **Campaign Questions**: This guide covers 90% of use cases
+- **Brevo Support**: For template design, deliverability issues
+- **Rails Logs**: Most helpful for debugging campaign issues
+
+**Happy Campaigning!** 🎉
 - **Construction**: construction, building, contractor
 - **Marketing**: marketing, advertising, seo, digital
 - **Consulting**: consulting, advisory, strategy

@@ -72,26 +72,258 @@ link_to "Send Now", path, data: { turbo_method: :post, turbo_confirm: "Are you s
 - User activity monitoring
 - Audit logging for compliance
 
-### 📧 Campaign Management System
-- **Multi-channel campaigns**: Email, SMS, and WhatsApp support
-- **Provider management**: Secure configuration for service providers (SendGrid, Twilio, Brevo, etc.)
-- **Template system**: Reusable campaign templates with merge variables
-- **Brevo Integration**: Use beautiful Brevo templates with dynamic personalization
-- **Campaign scheduling**: Advanced scheduling with timezone support
-- **Message tracking**: Complete delivery status monitoring
+### 📧 **Comprehensive Campaign Management**
+- **Multi-channel campaigns**: Email (Brevo), SMS, and WhatsApp ready
+- **Provider management**: Secure API configuration for service providers  
+- **Template system**: Local templates + External Brevo template support
+- **Advanced scheduling**: Immediate send, scheduled campaigns, timezone support
+- **Smart personalization**: Dynamic variables with industry detection
+- **Message tracking**: Complete delivery lifecycle monitoring
 - **Webhook integration**: Real-time event tracking (delivered, opened, clicked, bounced)
-- **Campaign lifecycle**: Draft → Scheduled → Sending → Completed/Failed
+- **Campaign analytics**: Open rates, click rates, bounce tracking
+- **Background processing**: Scalable campaign execution with Sidekiq
+- **Campaign lifecycle**: Draft → Test → Sending → Completed with full audit trail
 
-## 🎯 Brevo Email Integration
+## 🎯 **Brevo Email Integration** (Production Ready)
 
-### Quick Setup Guide
+### **For Team Members - Quick Campaign Setup**
 
-#### 1. Get Your Brevo API Key
-1. Login to [my.brevo.com](https://my.brevo.com)
-2. Go to **Settings** → **API Keys**
-3. Create or copy your API key (format: `xkeysib-xxxxxxxxxxxxxx`)
+#### **1. Admin Dashboard Access** 
+- Login to CRM Admin Panel
+- Role required: Admin or Super Admin
 
-#### 2. Environment Configuration
+#### **2. Create Email Provider**
+```
+Admin → Providers → New Provider
+├── Name: "Brevo Email"  
+├── Type: "Email"
+├── Configuration:
+    ├── api_key: [Your Brevo API Key]
+    ├── sender_name: "Your Company"
+    └── sender_email: "noreply@company.com"
+```
+
+#### **3. Create Campaign Template**
+```
+Option A - External Brevo Template (Recommended):
+Admin → Templates → New Template
+├── Name: "Website Audit Outreach"
+├── Subject: "Your email subject"  
+├── External Template ID: "4" (your Brevo template ID)
+└── Leave HTML/Text empty
+
+Option B - Local Template:
+├── Fill HTML Body with template content
+└── Leave External Template ID empty
+```
+
+#### **4. Import & Organize Contacts**
+```
+Admin → Contacts → Import CSV
+├── Upload your contact file
+├── Map columns (email, name, company, etc.)
+└── Import to system
+
+Admin → Lists → New List  
+├── Create targeted lists
+└── Add contacts to lists
+```
+
+#### **5. Create & Launch Campaign**
+```
+Admin → Schedules → New Schedule
+├── Name: "Q1 Website Audit Campaign"
+├── Template: [Select your template]
+├── Provider: "Brevo Email"  
+├── Target: [Select your contact list]
+├── Test Send → ✅ Verify everything works
+└── Send Now → 🚀 Launch campaign
+```
+
+#### **6. Monitor Campaign Performance**
+```
+Real-time Monitoring:
+├── Admin → Schedules → [Campaign] (overview)
+├── Admin → Messages (individual emails)
+├── Admin → Message Events (opens, clicks)
+└── Brevo Dashboard (detailed analytics)
+```
+
+---
+
+### **For Developers - Technical Setup**
+
+---
+
+### **For Developers - Technical Setup**
+
+#### **1. Environment Configuration**
+Add to your `.env` file:
+```bash
+BREVO_API_KEY=xkeysib-your-actual-api-key-here
+```
+
+Restart your Rails server after adding the API key.
+
+#### **2. Webhook Setup** (For delivery tracking)
+```bash
+# Install ngrok for local development
+npm install -g ngrok
+
+# Expose local Rails server  
+ngrok http 3000
+
+# In Brevo dashboard → Transactional → Webhooks:
+# Add webhook URL: https://your-ngrok-url.ngrok-free.app/webhooks/brevo
+# Enable events: delivered, opened, clicked, bounced, spam
+```
+
+#### **3. Template Variables** 
+Use these in your Brevo templates:
+```html
+{{ params.contact_person_name }}  <!-- Full name with fallback -->
+{{ params.company_name }}         <!-- Company name with fallback -->  
+{{ params.their_industry }}       <!-- Smart industry detection -->
+{{ params.first_name }}          <!-- First name only -->
+{{ params.email }}               <!-- Contact email -->
+{{ params.phone }}               <!-- Phone number -->
+```
+
+#### **4. Background Jobs Setup**
+```bash
+# Install Redis for Sidekiq
+sudo apt-get install redis-server
+
+# Start Sidekiq for campaign processing
+bundle exec sidekiq
+
+# Check job status
+Admin → Sidekiq Web UI (if configured)
+```
+
+#### **5. Testing Commands**
+```ruby
+# Test API connection
+rails runner "puts Brevo::ApiClient.new.test_connection"
+
+# Test template variable mapping
+rails runner "
+contact = Contact.first
+sender = Brevo::EmailSender.new
+params = sender.send(:prepare_template_params, contact)  
+puts params.inspect
+"
+
+# Send test campaign
+rails runner "
+schedule = Schedule.first
+job = SendCampaignJob.perform_now(schedule.id)
+puts 'Campaign sent!'
+"
+```
+
+---
+
+## 🚀 **Getting Started for New Team Members**
+
+### **Prerequisites**
+- Admin access to the CRM dashboard
+- Basic understanding of email marketing concepts
+- Access to your Brevo account (or ask admin for API key)
+
+### **Your First Campaign in 10 Minutes**
+
+1. **Login**: Access the CRM admin panel
+2. **Provider**: Create Brevo email provider with API key
+3. **Contacts**: Import your contact CSV file  
+4. **List**: Create a contact list and add contacts
+5. **Template**: Create template (use External Brevo template ID)
+6. **Campaign**: Create new schedule linking template + provider + list
+7. **Test**: Send test email to verify everything works
+8. **Launch**: Click "Send Now" to start campaign
+9. **Monitor**: Watch real-time delivery and engagement
+10. **Analyze**: Review open rates, clicks, and bounces
+
+### **Common Workflows**
+
+#### **Weekly Newsletter Campaign**
+```
+1. Create template: "Weekly Newsletter Template"
+2. Import new contacts (if any)
+3. Create campaign: "Weekly Newsletter - [Date]"
+4. Schedule for Tuesday 9 AM
+5. Monitor engagement throughout week
+```
+
+#### **Product Launch Announcement**
+```  
+1. Segment contacts by industry/interest
+2. Create personalized template with product details
+3. Create multiple campaigns for different segments
+4. A/B test subject lines
+5. Send at optimal times per segment
+```
+
+#### **Follow-up Email Sequence**
+```
+1. Create engagement-based segments (opened/didn't open)
+2. Create follow-up templates
+3. Manual follow-up campaigns based on first campaign results
+4. Track conversion through to website/sales
+```
+
+---
+
+## 📊 **Campaign Analytics & Reporting**
+
+### **Built-in Analytics**
+- **Campaign Overview**: Total sent, delivered, opened, clicked
+- **Individual Message Tracking**: Per-contact delivery status
+- **Real-time Events**: Live webhook event processing
+- **Provider Performance**: Success rates by email provider
+- **Contact Engagement**: Historical interaction tracking
+
+### **External Analytics**  
+- **Brevo Dashboard**: Advanced analytics and heatmaps
+- **Google Analytics**: Track website clicks from campaigns
+- **CRM Integration**: Contact engagement scoring
+
+---
+
+## 🔧 **Advanced Configuration**
+
+### **Custom Template Variables**
+Add custom merge data to campaigns:
+```ruby
+# In schedule merge_data field:
+{
+  "promotion_code": "SAVE20",
+  "webinar_date": "March 15, 2025",
+  "sales_rep_name": "John Smith"
+}
+
+# Use in templates:
+{{ params.promotion_code }}
+{{ params.webinar_date }}  
+{{ params.sales_rep_name }}
+```
+
+### **Provider Failover**
+Set up multiple providers for redundancy:
+```ruby
+# Primary: Brevo
+# Backup: SendGrid  
+# Configure both providers, system auto-switches on failure
+```
+
+### **Advanced Scheduling**
+```ruby
+# Timezone-aware scheduling
+schedule.send_at = 2.days.from_now.in_time_zone("America/New_York")
+
+# Recurring campaigns (requires custom implementation)
+# Daily, weekly, monthly options
+```
 Add to your `.env` file:
 ```bash
 BREVO_API_KEY=your-brevo-api-key-here
@@ -367,55 +599,185 @@ john@example.com,+1234567890,John Doe,,Developer,USA,New York,Website,"lead,pote
 jane@techcorp.com,,Jane Smith,TechCorp Inc,CTO,USA,San Francisco,LinkedIn,"enterprise,tech"
 ```
 
-## 🔧 Brevo Integration Troubleshooting
+---
 
-### Common Issues & Solutions
+## 🔧 **Troubleshooting Guide**
 
-#### 1. **401 Unauthorized Error**
-**Problem**: API connection fails with unauthorized error
-**Solution**: 
-- Check your API key in `.env` file
-- Ensure API key is active in Brevo dashboard
-- Restart Rails server after updating `.env`
+### **Campaign Issues**
 
-#### 2. **Template Not Found**
-**Problem**: Brevo template not loading
-**Solution**:
-- Verify template ID from Brevo URL (e.g., `/template/7` → ID is "7")
-- Ensure template is published (not draft) in Brevo
-- Check template exists in your Brevo account
+#### ❌ **"Campaign not sending"**
+**Symptoms**: Schedule shows "sending" but no emails go out
+**Solutions**:
+```bash
+1. Check provider configuration: Admin → Providers → [Your Provider]
+2. Verify API key: rails runner "puts ENV['BREVO_API_KEY']"
+3. Test API connection: rails runner "puts Brevo::ApiClient.new.test_connection"
+4. Check Sidekiq: Is background job processor running?
+5. View logs: tail -f log/development.log
+```
 
-#### 3. **No Contacts Found for Campaign**
-**Problem**: Campaign shows "No contacts to send to"
-**Solution**:
-- Verify contacts have `consent_status: 'consented'`
-- Ensure contacts have valid email addresses
-- Check contacts are in the target list
-- Update contact consent: `Contact.update_all(consent_status: 'consented')`
+#### ❌ **"Template variables not working"**
+**Symptoms**: Emails show {{ params.variable_name }} instead of values
+**Solutions**:
+```bash
+1. Use correct format: {{ params.contact_person_name }}
+2. Test parameter mapping: Admin → Templates → [Template] → Test Send
+3. Check contact data completeness: Admin → Contacts → [Contact]
+4. Verify external template ID matches Brevo template
+```
 
-#### 4. **Sender Email Not Verified**
-**Problem**: Emails fail to send due to sender verification
-**Solution**:
-- Go to Brevo → Settings → Senders & IP
-- Add and verify your sender email domain
-- Update provider configuration with verified sender
+#### ❌ **"No contacts found for campaign"**
+**Symptoms**: Campaign shows 0 contacts to send to
+**Solutions**:
+```bash
+1. Check contact consent: Admin → Contacts (filter by consent status)
+2. Verify list membership: Admin → Lists → [List] → Contacts tab
+3. Check contact email validity: Must have non-blank email
+4. Update consent status: rails runner "Contact.update_all(consent_status: 'opted_in')"
+```
 
-#### 5. **Environment Variables Not Loading**
-**Problem**: API key showing as nil
-**Solution**:
-- Ensure `dotenv-rails` gem is installed
-- Check `.env` file is in project root
-- Use format: `BREVO_API_KEY=your-key` (no spaces around =)
-- Restart Rails server
+#### ❌ **"401 Unauthorized Error"**
+**Symptoms**: API calls fail with authentication error
+**Solutions**:
+```bash
+1. Verify API key format: xkeysib-xxxxxxxxxxxxxxxxx
+2. Check .env file: No spaces around = sign
+3. Test in Rails console: ENV['BREVO_API_KEY']
+4. Restart server after .env changes
+5. Check API key permissions in Brevo dashboard
+```
 
-### Testing Commands
+### **Webhook Issues**
+
+#### ❌ **"Not receiving delivery updates"**
+**Symptoms**: Messages stay "sent", never update to "delivered"
+**Solutions**:
+```bash
+1. Configure webhook in Brevo dashboard:
+   - URL: https://your-ngrok-url.ngrok-free.app/webhooks/brevo
+   - Events: delivered, opened, clicked, bounced
+2. Test webhook: curl -X GET "https://your-url/webhooks/brevo/test"
+3. Check webhook logs: Admin → Message Events
+4. Verify ngrok is running: ngrok http 3000
+```
+
+#### ❌ **"Webhook receiving but not processing"**
+**Symptoms**: Webhook logs show events but messages not updating
+**Solutions**:
+```bash
+1. Check message ID matching in logs
+2. Verify webhook payload format
+3. Test webhook status: GET /webhooks/brevo/status
+4. Check Rails logs for webhook errors
+```
+
+### **Template Issues**
+
+#### ❌ **"Brevo template not found"**
+**Symptoms**: Error loading external template
+**Solutions**:
+```bash
+1. Check template ID from Brevo URL (/template/7 → ID is "7")
+2. Ensure template is published (not draft) in Brevo
+3. Verify template belongs to your account
+4. Test template exists: Check Brevo dashboard → Templates
+```
+
+#### ❌ **"Template rendering errors"**
+**Symptoms**: Emails have broken layout or missing content
+**Solutions**:
+```bash
+1. Test in Brevo dashboard first
+2. Check template variable syntax: {{ params.variable }}
+3. Use local template as fallback
+4. Verify template has proper HTML structure
+```
+
+### **Performance Issues**
+
+#### ❌ **"Campaigns sending slowly"**
+**Symptoms**: Large campaigns take very long to complete
+**Solutions**:
+```bash
+1. Check Sidekiq worker count: Default is 3 threads
+2. Monitor Redis memory usage
+3. Review Brevo API rate limits (600 emails/hour on free plan)
+4. Consider batching large campaigns
+5. Check server resources (CPU, memory)
+```
+
+#### ❌ **"High bounce rates"**  
+**Symptoms**: Many emails bouncing or marked as spam
+**Solutions**:
+```bash
+1. Verify sender domain authentication in Brevo
+2. Check contact list quality and source
+3. Implement double opt-in for new contacts
+4. Review email content for spam triggers
+5. Monitor sender reputation in Brevo dashboard
+```
+
+### **Development/Setup Issues**
+
+#### ❌ **"Rails 8 Turbo errors"**
+**Symptoms**: No route matches [GET] errors on POST actions
+**Solutions**:
+```ruby
+# Use new Rails 8 syntax:
+link_to "Send Now", schedule_path, 
+  data: { turbo_method: :post, turbo_confirm: "Are you sure?" }
+
+# Not old syntax:
+link_to "Send Now", schedule_path, method: :post, confirm: "Are you sure?"
+```
+
+#### ❌ **"Background jobs not processing"**
+**Symptoms**: Campaigns stay in "sending" state indefinitely
+**Solutions**:
+```bash
+1. Start Sidekiq: bundle exec sidekiq
+2. Check Redis connection: redis-cli ping
+3. Monitor job queue: Admin → Sidekiq Web (if configured)
+4. Check failed jobs: Sidekiq::FailedSet.new.size
+```
+
+### **Quick Debugging Commands**
 
 ```ruby
-# Check environment variable
-puts ENV['BREVO_API_KEY']
+# Test full campaign flow
+rails runner "
+schedule = Schedule.find([ID])
+puts 'Schedule: ' + schedule.name
+puts 'Template: ' + schedule.template.name  
+puts 'Contacts: ' + schedule.target.contacts.count.to_s
+puts 'Provider: ' + schedule.provider.name
+"
 
-# Test API connection
+# Check webhook setup
+curl -X GET "https://your-ngrok-url/webhooks/brevo/status"
+
+# Test template variables
+rails runner "
+contact = Contact.first
 api_client = Brevo::ApiClient.new
+params = api_client.build_template_params(contact)
+puts params.inspect
+"
+
+# Monitor campaign in real-time
+tail -f log/development.log | grep -E "(Brevo|Campaign|SendCampaignJob)"
+```
+
+### **Getting Help**
+
+1. **Check Logs First**: `tail -f log/development.log`
+2. **Test Components Individually**: Provider → Template → Contact List → Campaign
+3. **Use Admin Panel**: Most issues visible in Admin → Messages, Events
+4. **Rails Console**: Perfect for testing individual components
+5. **Brevo Dashboard**: External perspective on deliverability
+6. **System Admin**: For API keys, webhook configuration, server issues
+
+**Pro Tip**: Most campaign issues are due to incomplete contact data or provider configuration. Test with a single known-good contact first! 🎯
 puts api_client.test_connection
 
 # Check provider setup
