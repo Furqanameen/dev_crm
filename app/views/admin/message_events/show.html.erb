@@ -1,4 +1,287 @@
-<div>
-  <h1 class="font-bold text-4xl">Admin::MessageEvents#show</h1>
-  <p>Find me in app/views/admin/message_events/show.html.erb</p>
+<% content_for :title, "Message Event Details" %>
+
+<div class="admin-content">
+  <div class="admin-header">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="admin-title">Message Event Details</h1>
+        <p class="admin-subtitle">
+          <span class="badge badge-<%= @event.event_type == 'delivered' ? 'success' : @event.event_type == 'opened' ? 'info' : @event.event_type == 'clicked' ? 'primary' : @event.event_type == 'bounced' ? 'danger' : 'warning' %>">
+            <%= @event.display_type %>
+          </span>
+          <span class="text-gray-500 ml-2">
+            <%= @event.occurred_at.strftime("%B %d, %Y at %I:%M %p") %>
+          </span>
+        </p>
+      </div>
+      <div class="flex space-x-3">
+        <%= link_to admin_message_events_path, class: "btn btn-secondary" do %>
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          Back to Events
+        <% end %>
+        
+        <%= link_to admin_message_path(@message), class: "btn btn-primary" do %>
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 1.05A2 2 0 0012 11.05v0a2 2 0 001.11-1.05L21 8M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8M3 8l9 6 9-6"/>
+          </svg>
+          View Message
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Content -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Event Information -->
+      <div class="card">
+        <div class="card-header">
+          <div class="flex items-center">
+            <span class="h-8 w-8 rounded-full flex items-center justify-center mr-3
+              <%= case @event.event_type
+                  when 'delivered' then 'bg-green-500'
+                  when 'opened' then 'bg-blue-500'
+                  when 'clicked' then 'bg-purple-500'
+                  when 'bounced', 'failed', 'rejected' then 'bg-red-500'
+                  when 'spam' then 'bg-orange-500'
+                  else 'bg-gray-500'
+                  end %>">
+              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <% case @event.event_type %>
+                <% when 'delivered' %>
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                <% when 'opened' %>
+                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                  <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                <% when 'clicked' %>
+                  <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                <% else %>
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                <% end %>
+              </svg>
+            </span>
+            <h3 class="text-lg font-semibold"><%= @event.display_type %> Event</h3>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Event Details</h4>
+              <div class="space-y-3">
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Event Type:</span>
+                  <span class="text-sm font-medium"><%= @event.display_type %></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Occurred At:</span>
+                  <span class="text-sm font-medium"><%= @event.occurred_at.strftime("%B %d, %Y at %I:%M %p") %></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Created At:</span>
+                  <span class="text-sm font-medium"><%= @event.created_at.strftime("%B %d, %Y at %I:%M %p") %></span>
+                </div>
+                <% if @event.event_data.present? && @event.event_data['email'] %>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Email:</span>
+                  <span class="text-sm font-medium"><%= @event.event_data['email'] %></span>
+                </div>
+                <% end %>
+                <% if @event.event_data.present? && @event.event_data['url'] %>
+                <div>
+                  <span class="text-sm text-gray-500">Clicked URL:</span>
+                  <div class="mt-1">
+                    <%= link_to @event.event_data['url'], @event.event_data['url'], target: '_blank', class: "text-sm text-blue-600 hover:text-blue-800 break-all" %>
+                  </div>
+                </div>
+                <% end %>
+              </div>
+            </div>
+            
+            <div>
+              <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Message Information</h4>
+              <div class="space-y-3">
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Message ID:</span>
+                  <span class="text-sm font-medium">
+                    <%= link_to "##{@message.id}", admin_message_path(@message), class: "text-blue-600 hover:text-blue-800" %>
+                  </span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Channel:</span>
+                  <span class="text-sm font-medium"><%= @message.channel.humanize %></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Status:</span>
+                  <span class="badge badge-sm badge-<%= @message.status == 'delivered' ? 'success' : @message.status == 'failed' ? 'danger' : @message.status == 'sent' ? 'primary' : 'warning' %>">
+                    <%= @message.display_status %>
+                  </span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Sent At:</span>
+                  <span class="text-sm font-medium">
+                    <%= @message.sent_at ? @message.sent_at.strftime("%B %d, %Y at %I:%M %p") : 'Not sent' %>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Webhook Data -->
+      <% if @event.event_data.present? %>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="text-lg font-semibold">Webhook Data</h3>
+          <p class="text-sm text-gray-500 mt-1">Raw data received from the email provider</p>
+        </div>
+        <div class="card-body">
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <pre class="text-sm text-gray-700 overflow-x-auto"><%= JSON.pretty_generate(@event.event_data) %></pre>
+          </div>
+        </div>
+      </div>
+      <% end %>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="lg:col-span-1 space-y-6">
+      <!-- Contact Information -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="text-lg font-semibold">Contact Details</h3>
+        </div>
+        <div class="card-body">
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm font-medium text-gray-900"><%= @message.contact.display_name %></p>
+                <p class="text-sm text-gray-500"><%= @message.contact.email %></p>
+              </div>
+            </div>
+            
+            <div class="border-t pt-4">
+              <dl class="space-y-2">
+                <% if @message.contact.mobile_number.present? %>
+                <div>
+                  <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Phone</dt>
+                  <dd class="text-sm text-gray-900"><%= @message.contact.mobile_number %></dd>
+                </div>
+                <% end %>
+                
+                <% if @message.contact.company_name.present? %>
+                <div>
+                  <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Company</dt>
+                  <dd class="text-sm text-gray-900"><%= @message.contact.company_name %></dd>
+                </div>
+                <% end %>
+                
+                <div>
+                  <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Account Type</dt>
+                  <dd class="text-sm text-gray-900"><%= @message.contact.account_type.humanize %></dd>
+                </div>
+                
+                <div>
+                  <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Consent Status</dt>
+                  <dd>
+                    <span class="badge badge-sm badge-<%= @message.contact.consent_status == 'opted_in' ? 'success' : 'warning' %>">
+                      <%= @message.contact.consent_status.humanize %>
+                    </span>
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campaign Information -->
+      <% if @message.schedule.present? %>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="text-lg font-semibold">Campaign Details</h3>
+        </div>
+        <div class="card-body">
+          <div class="space-y-3">
+            <div>
+              <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Campaign Name</dt>
+              <dd class="text-sm text-gray-900 mt-1">
+                <%= link_to @message.schedule.name, admin_schedule_path(@message.schedule), class: "text-blue-600 hover:text-blue-800" %>
+              </dd>
+            </div>
+            
+            <div>
+              <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Template</dt>
+              <dd class="text-sm text-gray-900 mt-1">
+                <%= @message.schedule.template&.name || 'N/A' %>
+              </dd>
+            </div>
+            
+            <div>
+              <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Provider</dt>
+              <dd class="text-sm text-gray-900 mt-1">
+                <%= @message.provider&.name || 'N/A' %>
+              </dd>
+            </div>
+            
+            <div>
+              <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Campaign Status</dt>
+              <dd class="mt-1">
+                <span class="badge badge-sm badge-<%= @message.schedule.state == 'completed' ? 'success' : @message.schedule.state == 'failed' ? 'danger' : 'primary' %>">
+                  <%= @message.schedule.state.humanize %>
+                </span>
+              </dd>
+            </div>
+          </div>
+        </div>
+      </div>
+      <% end %>
+
+      <!-- Related Events -->
+      <% related_events = @message.message_events.where.not(id: @event.id).order(:occurred_at) %>
+      <% if related_events.any? %>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="text-lg font-semibold">Related Events</h3>
+          <p class="text-sm text-gray-500 mt-1">Other events for this message</p>
+        </div>
+        <div class="card-body">
+          <div class="space-y-3">
+            <% related_events.each do |event| %>
+            <div class="flex items-center justify-between py-2 border-b last:border-0">
+              <div class="flex items-center">
+                <span class="h-6 w-6 rounded-full flex items-center justify-center mr-2
+                  <%= case event.event_type
+                      when 'delivered' then 'bg-green-100 text-green-600'
+                      when 'opened' then 'bg-blue-100 text-blue-600'
+                      when 'clicked' then 'bg-purple-100 text-purple-600'
+                      when 'bounced', 'failed', 'rejected' then 'bg-red-100 text-red-600'
+                      when 'spam' then 'bg-orange-100 text-orange-600'
+                      else 'bg-gray-100 text-gray-600'
+                      end %>">
+                  <div class="h-2 w-2 rounded-full bg-current"></div>
+                </span>
+                <div>
+                  <p class="text-sm font-medium text-gray-900"><%= event.display_type %></p>
+                  <p class="text-xs text-gray-500"><%= event.occurred_at.strftime("%b %d, %I:%M %p") %></p>
+                </div>
+              </div>
+              <%= link_to admin_message_event_path(event), class: "text-blue-600 hover:text-blue-800 text-sm" do %>
+                View →
+              <% end %>
+            </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      <% end %>
+    </div>
+  </div>
 </div>

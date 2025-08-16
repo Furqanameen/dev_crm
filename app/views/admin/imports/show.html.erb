@@ -159,8 +159,7 @@
             <% end %>
           <% end %>
 
-          <%= link_to admin_import_path(@import_batch), method: :delete, 
-              data: { confirm: "Are you sure you want to delete this import batch? This action cannot be undone." },
+          <%= link_to admin_import_path(@import_batch), data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to delete this import batch? This action cannot be undone."  },
               class: "flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors" do %>
             <div class="icon icon-trash text-gray-600 mr-3"></div>
             <div>

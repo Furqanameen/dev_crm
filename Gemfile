@@ -27,6 +27,12 @@ gem "tailwindcss-rails"
 # Background Jobs
 gem "sidekiq"
 
+# Brevo Email API Integration
+gem "sib-api-v3-sdk"
+
+# Environment variable loading
+gem "dotenv-rails"
+
 # CSV Processing
 gem "csv"
 

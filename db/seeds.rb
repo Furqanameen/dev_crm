@@ -3,26 +3,24 @@ puts "Creating users..."
 
 # Create Super Admin
 super_admin_password = ENV['SUPER_ADMIN_PASSWORD'] || SecureRandom.hex(8)
-super_admin = User.create!(
-  email: 'superadmin@devcrm.com',
-  password: super_admin_password,
-  password_confirmation: super_admin_password,
-  role: :super_admin,
-  confirmed_at: Time.current
-)
+super_admin = User.find_or_create_by(email: 'superadmin@devcrm.com') do |user|
+  user.password = super_admin_password
+  user.password_confirmation = super_admin_password
+  user.role = :super_admin
+  user.confirmed_at = Time.current
+end
 
 # Create Admin
 admin_password = SecureRandom.hex(8)
-admin = User.create!(
-  email: 'admin@devcrm.com',
-  password: admin_password,
-  password_confirmation: admin_password,
-  role: :admin,
-  confirmed_at: Time.current
-)
+admin = User.find_or_create_by(email: 'admin@devcrm.com') do |user|
+  user.password = admin_password
+  user.password_confirmation = admin_password
+  user.role = :admin
+  user.confirmed_at = Time.current
+end
 
-puts "Super Admin created: superadmin@devcrm.com / #{super_admin_password}"
-puts "Admin created: admin@devcrm.com / #{admin_password}"
+puts "Super Admin: superadmin@devcrm.com"
+puts "Admin: admin@devcrm.com"
 
 # Create sample contacts from CSV data
 puts "Creating sample contacts from CSV data..."
@@ -241,14 +239,17 @@ end
 puts "Creating sample providers..."
 
 providers_data = [
-  { name: 'SendGrid Email', channel: 'email', config: { api_key: 'your_sendgrid_api_key' } },
-  { name: 'Mailgun Email', channel: 'email', config: { api_key: 'your_mailgun_api_key', domain: 'your-domain.com' } },
-  { name: 'Twilio SMS', channel: 'sms', config: { account_sid: 'your_twilio_account_sid', auth_token: 'your_twilio_auth_token', from_number: '+1234567890' } },
-  { name: 'WhatsApp Business', channel: 'whatsapp', config: { phone_number_id: 'your_phone_number_id', access_token: 'your_access_token' } },
-  { name: 'Amazon SES', channel: 'email', config: { access_key_id: 'your_access_key', secret_access_key: 'your_secret_key', region: 'us-west-2' } },
-  { name: 'Vonage SMS', channel: 'sms', config: { api_key: 'your_vonage_api_key', api_secret: 'your_vonage_secret' } },
-  { name: 'Postmark Email', channel: 'email', config: { server_token: 'your_postmark_server_token' } },
-  { name: 'MessageBird SMS', channel: 'sms', config: { access_key: 'your_messagebird_access_key' } }
+  { name: "Brevo Email", channel: "email", status: "active",
+        configuration: {"api_key"=>"xkeysib-1d22370f7cb248ad9bfe6c4a8fc7939965085854b94a2", "sender_name"=>"Dev Hub Solutions", "sender_email"=>"info@devhubsol.com"} 
+  },
+  { name: 'SendGrid Email', channel: 'email', configuration: { api_key: 'your_sendgrid_api_key' } },
+  { name: 'Mailgun Email', channel: 'email', configuration: { api_key: 'your_mailgun_api_key', domain: 'your-domain.com' } },
+  { name: 'Twilio SMS', channel: 'sms', configuration: { account_sid: 'your_twilio_account_sid', auth_token: 'your_twilio_auth_token', from_number: '+1234567890' } },
+  { name: 'WhatsApp Business', channel: 'whatsapp', configuration: { phone_number_id: 'your_phone_number_id', access_token: 'your_access_token' } },
+  { name: 'Amazon SES', channel: 'email', configuration: { access_key_id: 'your_access_key', secret_access_key: 'your_secret_key', region: 'us-west-2' } },
+  { name: 'Vonage SMS', channel: 'sms', configuration: { api_key: 'your_vonage_api_key', api_secret: 'your_vonage_secret' } },
+  { name: 'Postmark Email', channel: 'email', configuration: { server_token: 'your_postmark_server_token' } },
+  { name: 'MessageBird SMS', channel: 'sms', configuration: { access_key: 'your_messagebird_access_key' } }
 ]
 
 providers_data.each do |provider_data|

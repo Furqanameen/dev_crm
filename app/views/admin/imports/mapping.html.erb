@@ -22,7 +22,7 @@
             Map the columns from your CSV file to the corresponding fields in our system.
           </p>
 
-          <%= form_with url: preview_admin_import_path(@import_batch), method: :post, local: true do |form| %>
+          <%= form_with url: preview_admin_import_path(@import_batch), data: { turbo_method: :post }, local: true do |form| %>
             <div class="table-responsive">
               <table class="table table-bordered">
                 <thead class="table-light">

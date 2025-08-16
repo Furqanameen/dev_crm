@@ -13,7 +13,7 @@
   <div class="admin-actions">
     <%= link_to "Add Contacts", admin_contacts_path(list_id: @list.id), class: "btn btn-primary" %>
     <%= link_to "Edit List", edit_admin_list_path(@list), class: "btn btn-secondary" %>
-    <%= link_to admin_list_path(@list), method: :delete, 
+    <%= link_to admin_list_path(@list), data: { turbo_method: :delete }, 
         class: "btn btn-danger",
         data: { 
           confirm: "Are you sure you want to delete '#{@list.name}'? This will remove all contacts from the list (contacts themselves will not be deleted)."
@@ -100,7 +100,7 @@
                 <td>
                   <% if membership %>
                     <%= link_to "Remove", admin_contact_list_membership_path(membership), 
-                        method: :delete,
+                        data: { turbo_method: :delete },
                         class: "btn btn-sm btn-danger",
                         confirm: "Remove this contact from the list?",
                         remote: true,

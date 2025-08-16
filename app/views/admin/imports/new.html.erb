@@ -11,7 +11,7 @@
 </div>
 
 <div class="max-w-2xl">
-  <%= form_with url: admin_imports_path, method: :post, local: true, multipart: true, class: "space-y-6", id: "import_form" do |f| %>
+  <%= form_with url: admin_imports_path, data: { turbo_method: :post }, local: true, multipart: true, class: "space-y-6", id: "import_form" do |f| %>
     <% if @import_batch&.errors&.any? %>
       <div class="alert alert-danger">
         <h4><%= pluralize(@import_batch.errors.count, "error") %> prohibited this import from being saved:</h4>

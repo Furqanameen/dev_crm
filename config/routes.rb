@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       member do
         post :materialize
         post :send_now
+        post :test_send
         post :pause
         post :resume
       end
@@ -65,6 +66,13 @@ Rails.application.routes.draw do
 
   # Health check endpoint
   get "up" => "rails/health#show", as: :rails_health_check
+  
+  # Webhook endpoints
+  namespace :webhooks do
+    post 'brevo', to: 'brevo#receive'
+    get 'brevo/test', to: 'brevo#test'
+    get 'brevo/status', to: 'brevo#status'
+  end
   
   # PWA routes
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker

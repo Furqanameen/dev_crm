@@ -1,5 +1,5 @@
 class Admin::SchedulesController < Admin::BaseController
-  before_action :set_schedule, only: [:show, :edit, :update, :destroy, :materialize, :send_now, :pause, :resume]
+  before_action :set_schedule, only: [:show, :edit, :update, :destroy, :materialize, :send_now, :pause, :resume, :test_send]
 
   def index
     @schedules = Schedule.includes(:template, :provider, :target).order(created_at: :desc)
@@ -102,13 +102,35 @@ class Admin::SchedulesController < Admin::BaseController
   end
 
   def send_now
-    if @schedule.can_send?
-      @schedule.update(send_at: Time.current, state: :sending)
-      # Here you would typically enqueue a background job to actually send the messages
-      # ScheduleSendJob.perform_later(@schedule)
-      redirect_to admin_schedule_path(@schedule), notice: 'Schedule is now being sent.'
+    if @schedule.can_be_started?
+      begin
+        @schedule.send_now!
+        redirect_to admin_schedule_path(@schedule), notice: 'Campaign is now being sent via Brevo.'
+      rescue => e
+        redirect_to admin_schedule_path(@schedule), alert: "Failed to send campaign: #{e.message}"
+      end
     else
       redirect_to admin_schedule_path(@schedule), alert: 'Schedule cannot be sent in its current state.'
+    end
+  end
+
+  def test_send
+    if @schedule.template && @schedule.provider
+      begin
+        # Send test email to current user (assuming current_user method exists)
+        email_sender = Brevo::EmailSender.new
+        result = email_sender.send_test_email(
+          template: @schedule.template,
+          to_email: 'allahbakhshuk722@gmail.com',
+          to_name:  'Test User set email into schedule controller'
+        )
+        
+        redirect_to admin_schedule_path(@schedule), notice: 'Test email sent successfully!'
+      rescue => e
+        redirect_to admin_schedule_path(@schedule), alert: "Test email failed: #{e.message}"
+      end
+    else
+      redirect_to admin_schedule_path(@schedule), alert: 'Template and provider are required for test sending.'
     end
   end
 

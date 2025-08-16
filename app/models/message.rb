@@ -77,4 +77,9 @@ class Message < ApplicationRecord
       attempts: attempts + 1
     )
   end
+
+  # Convenience method for accessing recipient email
+  def recipient_email
+    contact&.email
+  end
 end
