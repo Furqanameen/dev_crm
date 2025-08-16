@@ -100,7 +100,7 @@
                 </span>
                 <button class="btn btn-primary" disabled>Start Import</button>
               <% else %>
-                <%= form_with url: perform_admin_import_path(@import_batch), method: :post, local: true, class: "d-inline" do |form| %>
+                <%= form_with url: perform_admin_import_path(@import_batch), data: { turbo_method: :post }, local: true, class: "d-inline" do |form| %>
                   <%= submit_tag "Start Import", class: "btn btn-success", 
                       confirm: "Are you sure you want to start the import? This will process #{@import_batch.total_rows} rows." %>
                 <% end %>

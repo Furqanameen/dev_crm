@@ -110,4 +110,45 @@ class Schedule < ApplicationRecord
       state.humanize
     end
   end
+
+  # Send the campaign now (manually triggered)
+  def send_now!
+    return false unless can_be_started?
+    
+    update!(
+      state: :scheduled,
+      send_at: Time.current
+    )
+    
+    # Enqueue the job to send the campaign
+    SendCampaignJob.perform_later(id)
+    true
+  end
+
+  # Schedule the campaign for future sending
+  def schedule_for_sending!
+    return false unless draft?
+    return false unless send_at.present?
+    
+    update!(state: :scheduled)
+    
+    # Schedule the job for the specified time
+    if send_at <= Time.current
+      SendCampaignJob.perform_later(id)
+    else
+      SendCampaignJob.set(wait_until: send_at).perform_later(id)
+    end
+    
+    true
+  end
+
+  # Get provider for sending
+  def sending_provider
+    provider || Provider.active.where(channel: :email).first
+  end
+
+  # Check if using Brevo provider
+  def using_brevo?
+    sending_provider&.name&.downcase&.include?('brevo')
+  end
 end

@@ -167,8 +167,8 @@
                     <tr>
                       <td>
                         <div>
-                          <div class="font-medium"><%= message.contact&.display_name || message.recipient_email %></div>
-                          <div class="text-sm text-gray-500"><%= message.recipient_email %></div>
+                          <div class="font-medium"><%= message.contact&.display_name %></div>
+                          <div class="text-sm text-gray-500"><%= message&.provider&.name %></div>
                         </div>
                       </td>
                       <td>
@@ -216,21 +216,32 @@
         </div>
         <div class="card-body space-y-3">
           <% if @schedule.can_be_started? %>
-          <%# binding.pry %>
-            <%= link_to send_now_admin_schedule_path(@schedule), method: :post, 
-                confirm: "Are you sure you want to send this campaign now?", 
-                class: "btn btn-success w-full" do %>
+            <%= button_to send_now_admin_schedule_path(@schedule), 
+                method: :post,
+                data: { turbo_confirm: "Are you sure you want to send this campaign now?" }, 
+                class: "btn btn-success w-full flex items-center justify-center" do %>
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
               </svg>
               Send Now
             <% end %>
+
+            <!-- Test Send Button -->
+            <%= button_to test_send_admin_schedule_path(@schedule), 
+                method: :post,
+                class: "btn btn-secondary w-full flex items-center justify-center" do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Send Test Email
+            <% end %>
           <% end %>
           
           <% if @schedule.can_be_paused? %>
-            <%= link_to admin_schedule_pause_path(@schedule), method: :post, 
-                confirm: "Are you sure you want to pause this campaign?", 
-                class: "btn btn-warning w-full" do %>
+            <%= button_to pause_admin_schedule_path(@schedule), 
+                method: :post,
+                data: { turbo_confirm: "Are you sure you want to pause this campaign?" }, 
+                class: "btn btn-warning w-full flex items-center justify-center" do %>
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
@@ -248,8 +259,8 @@
           <% end %>
           
           <% if @schedule.can_be_deleted? %>
-            <%= link_to admin_schedule_path(@schedule), method: :delete, 
-                confirm: "Are you sure you want to delete this schedule? This action cannot be undone.", 
+            <%= link_to admin_schedule_path(@schedule), 
+                data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to delete this schedule? This action cannot be undone."  }, 
                 class: "btn btn-danger w-full" do %>
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>

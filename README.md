@@ -7,7 +7,40 @@ A comprehensive CRM application built with Ruby on Rails 8.x, featuring CSV impo
 ### 🔐 Authentication & Authorization
 - **Devise** authentication with confirmable, trackable modules
 - **Role-based access control** with Pundit policies
-- Three user roles: Public, Admin, Super Admin
+- Three user roles: Public, Ad### **Performance Tips**
+
+1. **Batch Size**: Large lists are processed in batches of 1000
+2. **Background Jobs**: Campaigns run asynchronously via Sidekiq
+3. **Rate Limiting**: Brevo has API rate limits, system handles automatically
+4. **Template Caching**: Templates are cached for better performance
+
+## ⚡ Rails 8 Compatibility
+
+### **Turbo Method Syntax**
+This application uses Rails 8 with Turbo. If you encounter routing errors like:
+```
+No route matches [GET] "/admin/schedules/13/send_now"
+```
+
+The issue is likely deprecated `method:` syntax in links. Use:
+
+```ruby
+# ❌ Old Rails 7 syntax
+link_to "Send Now", path, method: :post, confirm: "Are you sure?"
+
+# ✅ New Rails 8 syntax
+link_to "Send Now", path, data: { turbo_method: :post, turbo_confirm: "Are you sure?" }
+```
+
+**All views in this application have been updated to use the new syntax.**
+
+### **Common Campaign Actions**
+- **Send Now**: `data: { turbo_method: :post, turbo_confirm: "..." }` 
+- **Test Send**: `data: { turbo_method: :post }`
+- **Pause Campaign**: `data: { turbo_method: :post, turbo_confirm: "..." }`
+- **Delete**: `data: { turbo_method: :delete, turbo_confirm: "..." }`
+
+### Role Permissionser Admin
 - Secure password management and email confirmation
 
 ### 👥 Contact Management
@@ -41,12 +74,100 @@ A comprehensive CRM application built with Ruby on Rails 8.x, featuring CSV impo
 
 ### 📧 Campaign Management System
 - **Multi-channel campaigns**: Email, SMS, and WhatsApp support
-- **Provider management**: Secure configuration for service providers (SendGrid, Twilio, etc.)
+- **Provider management**: Secure configuration for service providers (SendGrid, Twilio, Brevo, etc.)
 - **Template system**: Reusable campaign templates with merge variables
+- **Brevo Integration**: Use beautiful Brevo templates with dynamic personalization
 - **Campaign scheduling**: Advanced scheduling with timezone support
 - **Message tracking**: Complete delivery status monitoring
 - **Webhook integration**: Real-time event tracking (delivered, opened, clicked, bounced)
 - **Campaign lifecycle**: Draft → Scheduled → Sending → Completed/Failed
+
+## 🎯 Brevo Email Integration
+
+### Quick Setup Guide
+
+#### 1. Get Your Brevo API Key
+1. Login to [my.brevo.com](https://my.brevo.com)
+2. Go to **Settings** → **API Keys**
+3. Create or copy your API key (format: `xkeysib-xxxxxxxxxxxxxx`)
+
+#### 2. Environment Configuration
+Add to your `.env` file:
+```bash
+BREVO_API_KEY=your-brevo-api-key-here
+```
+
+#### 3. Create Brevo Provider
+In Rails console:
+```ruby
+Provider.create!(
+  name: "Brevo Email",
+  channel: "email",
+  configuration: {
+    "api_key" => ENV['BREVO_API_KEY'],
+    "sender_email" => "your-verified-sender@yourdomain.com",
+    "sender_name" => "Your Company Name"
+  }
+)
+```
+
+#### 4. Create Template in Brevo Dashboard
+1. Go to **Campaigns** → **Templates** in Brevo
+2. Create new template with drag-and-drop editor
+3. Use dynamic variables: `[Contact Person Name]`, `[Company Name]`, etc.
+4. Note the template ID from URL (e.g., template/7 → ID is "7")
+
+#### 5. Create Template in CRM
+```ruby
+Template.create!(
+  name: "Your Campaign Name",
+  purpose: :promotional,
+  default_provider: "Brevo Email",
+  external_template_id: "7",          # Your Brevo template ID
+  subject: "Your Email Subject",
+  merge_schema: {
+    "Contact Person Name" => "string",
+    "Company Name" => "string",
+    "First Name" => "string",
+    "Email" => "string",
+    "Phone" => "string"
+  }
+)
+```
+
+#### 6. Launch Campaign
+Through Admin Interface:
+1. **Admin** → **Schedules** → **New Schedule**
+2. Select your Brevo template
+3. Choose target contact list
+4. Click **"Send Now"** or **"Test Send"**
+
+### Dynamic Variables Available
+| Brevo Variable | Maps to CRM Field | Example |
+|---|---|---|
+| `[Contact Person Name]` | Contact full name | "John Smith" |
+| `[Company Name]` | Contact company | "Tech Corp Ltd" |
+| `[First Name]` | First name only | "John" |
+| `[Email]` | Contact email | "john@techcorp.com" |
+| `[Phone]` | Contact phone | "+44 1234 567890" |
+| `[Tags]` | Contact tags | "lead, priority" |
+
+### Testing Your Integration
+```ruby
+# Test API connection
+api_client = Brevo::ApiClient.new
+result = api_client.test_connection
+puts result
+
+# Send test email
+template = Template.find_by(external_template_id: "7")
+email_sender = Brevo::EmailSender.new
+result = email_sender.send_test_email(
+  template: template,
+  to_email: "furqanbinameen@gmail.com",
+  to_name: "Test User"
+)
+```
 
 ### ✅ Enhanced Navigation Structure
 ```
@@ -245,6 +366,90 @@ email,mobile_number,full_name,company_name,role,country,city,source,tags
 john@example.com,+1234567890,John Doe,,Developer,USA,New York,Website,"lead,potential"
 jane@techcorp.com,,Jane Smith,TechCorp Inc,CTO,USA,San Francisco,LinkedIn,"enterprise,tech"
 ```
+
+## 🔧 Brevo Integration Troubleshooting
+
+### Common Issues & Solutions
+
+#### 1. **401 Unauthorized Error**
+**Problem**: API connection fails with unauthorized error
+**Solution**: 
+- Check your API key in `.env` file
+- Ensure API key is active in Brevo dashboard
+- Restart Rails server after updating `.env`
+
+#### 2. **Template Not Found**
+**Problem**: Brevo template not loading
+**Solution**:
+- Verify template ID from Brevo URL (e.g., `/template/7` → ID is "7")
+- Ensure template is published (not draft) in Brevo
+- Check template exists in your Brevo account
+
+#### 3. **No Contacts Found for Campaign**
+**Problem**: Campaign shows "No contacts to send to"
+**Solution**:
+- Verify contacts have `consent_status: 'consented'`
+- Ensure contacts have valid email addresses
+- Check contacts are in the target list
+- Update contact consent: `Contact.update_all(consent_status: 'consented')`
+
+#### 4. **Sender Email Not Verified**
+**Problem**: Emails fail to send due to sender verification
+**Solution**:
+- Go to Brevo → Settings → Senders & IP
+- Add and verify your sender email domain
+- Update provider configuration with verified sender
+
+#### 5. **Environment Variables Not Loading**
+**Problem**: API key showing as nil
+**Solution**:
+- Ensure `dotenv-rails` gem is installed
+- Check `.env` file is in project root
+- Use format: `BREVO_API_KEY=your-key` (no spaces around =)
+- Restart Rails server
+
+### Testing Commands
+
+```ruby
+# Check environment variable
+puts ENV['BREVO_API_KEY']
+
+# Test API connection
+api_client = Brevo::ApiClient.new
+puts api_client.test_connection
+
+# Check provider setup
+provider = Provider.find_by(name: "Brevo Email")
+puts provider.configuration
+
+# Test template
+template = Template.find_by(external_template_id: "YOUR_TEMPLATE_ID")
+puts "Template found: #{template.present?}"
+
+# Send test email
+email_sender = Brevo::EmailSender.new
+result = email_sender.send_test_email(
+  template: template,
+  to_email: "your-email@example.com",
+  to_name: "Your Name"
+)
+puts result
+```
+
+### Checking Campaign Status
+
+Monitor campaigns through:
+1. **Admin → Schedules**: Campaign status and controls
+2. **Admin → Messages**: Individual email delivery status  
+3. **Brevo Dashboard**: Open rates, clicks, bounces
+4. **Rails Logs**: `tail -f log/development.log`
+
+### Performance Tips
+
+1. **Batch Size**: Large lists are processed in batches of 1000
+2. **Background Jobs**: Campaigns run asynchronously via Sidekiq
+3. **Rate Limiting**: Brevo has API rate limits, system handles automatically
+4. **Template Caching**: Templates are cached for better performance
 
 ### Role Permissions
 
